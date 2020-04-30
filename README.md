@@ -14,4 +14,6 @@ cd ~/bin/SPAdes-3.14.1-Linux/bin
 spades.py -h
 ```
 
-##Usage  
+##Instruction of options
+[OfficialLink](http://cab.spbu.ru/files/release3.14.1/manual.html)
+  
