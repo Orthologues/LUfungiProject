@@ -1,0 +1,35 @@
+This is the directory of the genome assembly project of the Agaricales PacBio genomes
+
+Project work: 15 credits
+Master Student: Jiawei Zhao
+Supervisor: Dag Ahren & Dimitrios Floudas
+-------------------------------------------------
+0. Start writing already now on the report:
+https://www.biology.lu.se/education/undergraduate-graduate-studies/courses/projects/bioinformatics
+
+1. Create dir structure w. Analysis Scripts Progs
+
+2. QA
+FastQC
+MultiQC: https://multiqc.info/
+
+3. Assemblers to try
+- Spades
+- canu
+- flye
+- wtdbg2 Possibly, not sure if it is easy to install or not
+https://www.nature.com/articles/s41592-019-0669-3
+- falconUnzip 
+- Ra less important?
+https://github.com/lbcb-sci/ra
+
+4. BUSCO
+
+5. Quast
+http://quast.sourceforge.net/quast
+
+6. Rerun MultiQC on all results directories
+
+7. Bandage plots
+
+
