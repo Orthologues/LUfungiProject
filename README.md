@@ -17,3 +17,18 @@ spades.py -h
 ## Instruction of options
 [OfficialLink](http://cab.spbu.ru/files/release3.14.1/manual.html)
   
+# GenomicConsensus
+
+The GenomicConsensus package provides the variant Caller tool, which allows you to apply the Quiver or Arrow algorithm to mapped PacBio reads to
+get consensus and variant calls
+
+## Installation and help
+
+```bash
+conda install -c bioconda genomicconsensus python=2
+quiver -h
+arrow -h
+```
+
+## Official Github Page
+[OfficialLink](https://github.com/PacificBiosciences/GenomicConsensus)
