@@ -32,3 +32,16 @@ arrow -h
 
 ## Official Github Page
 [OfficialLink](https://github.com/PacificBiosciences/GenomicConsensus)
+
+# wtdbg2 
+It's a de novo sequence assembler for long noisy reads produced by PacBio or Oxford Nanopore Technologies (ONT) which can be used for genome polishing as well
+
+## Official Github Page
+[OfficialLink](https://github.com/ruanjue/wtdbg2)
+
+# racon
+It's a Consensus module for raw de novo DNA assembly of long uncorrected reads. Racon can be used as a polishing tool after the assembly with either Illumina data or data produced by third generation of sequencing.
+
+## Official Github Page
+[OfficialLink](https://github.com/isovic/racon)
+
