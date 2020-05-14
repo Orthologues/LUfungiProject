@@ -8,6 +8,7 @@ Supervisor: Dag Ahren & Dimitrios Floudas
 https://www.biology.lu.se/education/undergraduate-graduate-studies/courses/projects/bioinformatics
 
 1. Create dir structure w. Analysis Scripts Progs
+Instruction of general steps: https://malfoy.github.io/
 
 2. QA
 FastQC
@@ -32,4 +33,8 @@ http://quast.sourceforge.net/quast
 
 7. Bandage plots
 
+8. Convert .fastq.gz files to.bam files before genome polishing
+ https://github.com/PacificBiosciences/blasr/blob/develop/doc/EXAMPLES.md
 
+9. https://software.broadinstitute.org/software/igv/
+A tool to visualize .bam files
