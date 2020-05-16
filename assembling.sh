@@ -13,11 +13,13 @@ multiqc ./fastqcReports/ -o multiQCreport/;
 ls ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/*/*subreads/*|cut -d / -f 7|while read fungi_name;do mkdir ./spadesAssembly/$fungi_name;done;
 
 ##Create .gitignore
-ls -d */|sed "s/\///g"|while read name;do echo $name >> .gitignore;done
+ls -d */|sed "s/\///g"|while read name;do echo $name >> .gitignore;done;
 
-##Long PacBio RSII reads assembly by wtdbg2 
-nohup ./wtdbg2 -x rs -g 6.5g -i ../pb_279_filtered_subreads.fastq.gz -t 20 -fo ../wtdbg2Assembly/pb_279_default/pb_279_default
-nohup ./wtdbg2 -x rs -g 6.9g -i ../pb_320-2_filtered_subreads.fastq.gz -t 20 -fo ../wtdbg2Assembly/pb_320-2_default/pb_320-2_default
+##Long PacBio RSII reads assembly by wtdbg2 to create concensus genomes for further genome polishing by arrow 
+nohup ./wtdbg2 -x rs -g 6.5g -i ../pb_279_filtered_subreads.fastq.gz -t 20 -fo ../wtdbg2Assembly/pb_279_default/pb_279_default;
+nohup ./wtdbg2 -x rs -g 6.9g -i ../pb_320-2_filtered_subreads.fastq.gz -t 20 -fo ../wtdbg2Assembly/pb_320-2_default/pb_320-2_default;
+# derive consensus
+ls ../wtdbg2Assembly/*/*.ctg.lay.gz|while read path;do dir=$(echo $path|cut -d / -f 1-3);name=$(echo $path|cut -d / -f 4|cut -d . -f 1);nohup ./wtpoa-cns -t 20 -i $path -fo $dir/$name.raw.fa;done;
 
-##In order to convert original .fastq.gz files of short reads into .BAM files for genome polishing with arrow, it's necessary to first use bowtie2 to have SAM format which can be transformed to BAM format with Samtools then
+##In order to convert original .fastq.gz files of short reads into .BAM files for genome polishing with arrow, it's necessary to use blasr(bowtie2 is used for short reads, inappropriate here)
  
