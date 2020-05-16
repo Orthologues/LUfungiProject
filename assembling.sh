@@ -22,4 +22,7 @@ nohup ./wtdbg2 -x rs -g 6.9g -i ../pb_320-2_filtered_subreads.fastq.gz -t 20 -fo
 ls ../wtdbg2Assembly/*/*.ctg.lay.gz|while read path;do dir=$(echo $path|cut -d / -f 1-3);name=$(echo $path|cut -d / -f 4|cut -d . -f 1);nohup ./wtpoa-cns -t 20 -i $path -fo $dir/$name.raw.fa;done;
 
 ##In order to convert original .fastq.gz files of short reads into .BAM files for genome polishing with arrow, it's necessary to use blasr(bowtie2 is used for short reads, inappropriate here)
- 
+ls ../unzipped/*.fastq|while read subreads;do name=$(echo $subreads|cut -d / -f 3|cut -d _ -f 1,2);ref=$(echo ./$name*/$name*.raw.fa);dir=$(echo $ref|cut -d / -f 1,2);nohup blasr $subreads $ref --sam --out $dir/blasrBAM/$name.sam;done  #however, there were errors within this step and the output files seem like incomplete
+
+##Try to use pbalign instead
+
