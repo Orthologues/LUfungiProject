@@ -1,5 +1,4 @@
-# spades
-
+#SPAdes
 Spades is a popular genome assembler. One of its advantages is that it alters 
 the k-mer size depending on the coverage of the genome. For low coverage re-
 gions  k-mer size should be low and for high coverage regions high. From supplementary material it can be learned that '--pacbio' option should be used
