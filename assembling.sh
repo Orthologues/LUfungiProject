@@ -37,3 +37,9 @@ awk '/^S/{print ">"$2"\n"$3}' pb_320-2.gfa|fold > pb_320-2_unpolished.fasta
 # Assembly polishing by minipolish(the output files aren't actually in .gfa format, eerie here)
 nohup minipolish -t 20 --pacbio pb_279_filtered_subreads.fastq.gz miniasmAssembly/pb_279.gfa > miniasmAssembly/pb_279_polished.gfa
 nohup minipolish -t 20 --pacbio pb_320-2_filtered_subreads.fastq.gz miniasmAssembly/pb_320-2.gfa > miniasmAssembly/pb_320-2_polished.gfa
+
+## Genome assembling and polishing by raven with default setting
+ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1);nohup raven --graphical-fragment-assembly ravenAssembly/default/$name.gfa  -t 20  $fastq;echo $name;done 
+# Convert .gfa files to .fasta files
+awk '/^S/{print ">"$2"\n"$3}' pb_279_filtered_subreads.gfa|fold >pb_279.fasta;
+awk '/^S/{print ">"$2"\n"$3}' pb_320-2_filtered_subreads.gfa|fold >pb_320-2.fasta; 
