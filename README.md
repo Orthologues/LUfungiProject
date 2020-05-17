@@ -44,3 +44,25 @@ It's a Consensus module for raw de novo DNA assembly of long uncorrected reads. 
 ## Official Github Page
 [OfficialLink](https://github.com/isovic/racon)
 
+# miniasm
+Miniasm is a rather particular long-read assembler as it doesn't include a consensus step. The resulting contigs are just merged erroneous long reads and still contains many sequencing errors. Produced contigs are structually correct, but at the nucleotide level, there're many mismatches and indels. Its output format is .gfa.
+
+## Official Github Page
+[OfficialLink](https://github.com/lh3/miniasm)
+
+# minipolish
+Minipolish is a combined tool for .gfa genome assembly polishing, especially for those which were produced by miniasm. It combines racon and minimap and can run for multiple rounds. It supports both ONT and PACBIO subreads as input.
+
+## Installation and help
+
+```bash
+conda create --name py3 python=3.7
+conda activate py3
+conda install -c bioconda minipolish
+minipolish -h
+```
+
+## Official github page
+[OfficialLink](https://github.com/rrwick/Minipolish#installation)
+
+
