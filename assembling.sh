@@ -16,8 +16,8 @@ ls ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/
 ls -d */|sed "s/\///g"|while read name;do echo $name >> .gitignore;done;
 
 ##Long PacBio RSII reads assembly by wtdbg2 to create concensus genomes for further genome polishing by arrow 
-nohup ./wtdbg2 -x rs -g 6.5g -i ../pb_279_filtered_subreads.fastq.gz -t 20 -fo ../wtdbg2Assembly/pb_279_default/pb_279_default;
-nohup ./wtdbg2 -x rs -g 6.9g -i ../pb_320-2_filtered_subreads.fastq.gz -t 20 -fo ../wtdbg2Assembly/pb_320-2_default/pb_320-2_default;
+nohup ./wtdbg2 -x rs -g ? -i ../pb_279_filtered_subreads.fastq.gz -t 20 -fo ../wtdbg2Assembly/pb_279_default/pb_279_default;
+nohup ./wtdbg2 -x rs -g ? -i ../pb_320-2_filtered_subreads.fastq.gz -t 20 -fo ../wtdbg2Assembly/pb_320-2_default/pb_320-2_default;
 # derive raw consensus
 ls ../wtdbg2Assembly/*/*.ctg.lay.gz|while read path;do dir=$(echo $path|cut -d / -f 1-3);name=$(echo $path|cut -d / -f 4|cut -d . -f 1);nohup ./wtpoa-cns -t 20 -i $path -fo $dir/$name.raw.fa;done;
 
@@ -31,15 +31,34 @@ nohup minimap2 -x ava-pb -t 15 pb_320-2_filtered_subreads.fastq.gz pb_320-2_filt
 # Layout using Miniasm
 ls miniasmAssembly/*|while read paf;do name=$(echo $paf|cut -d / -f 2|cut -d . -f 1|cut -d _ -f 1,2);nohup miniasm -f $name*.fastq.gz $paf > ./miniasmAssembly/$name.gfa;done 
 # Convert .gfa to .fasta
-awk '/^S/{print ">"$2"\n"$3}' pb_279.gfa|fold > pb_279-unpolished.fasta
-awk '/^S/{print ">"$2"\n"$3}' pb_320-2.gfa|fold > pb_320-2_unpolished.fasta
+awk '/^S/{print ">"$2"\n"$3}' pb_279.gfa > pb_279-unpolished.fasta
+awk '/^S/{print ">"$2"\n"$3}' pb_320-2.gfa > pb_320-2_unpolished.fasta
 
 # Assembly polishing by minipolish(the output files aren't actually in .gfa format, eerie here)
 nohup minipolish -t 20 --pacbio pb_279_filtered_subreads.fastq.gz miniasmAssembly/pb_279.gfa > miniasmAssembly/pb_279_polished.gfa
 nohup minipolish -t 20 --pacbio pb_320-2_filtered_subreads.fastq.gz miniasmAssembly/pb_320-2.gfa > miniasmAssembly/pb_320-2_polished.gfa
+# Convert .gfa to .fasta
+awk '/^S/{print ">"$2"\n"$3}' pb_279_polished.gfa > pb_279-polished.fasta
+awk '/^S/{print ">"$2"\n"$3}' pb_320-2_polished.gfa > pb_320-2_polished.fasta
 
 ## Genome assembling and polishing by raven with default setting
 ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1);nohup raven --graphical-fragment-assembly ravenAssembly/default/$name.gfa  -t 20  $fastq;echo $name;done 
 # Convert .gfa files to .fasta files
-awk '/^S/{print ">"$2"\n"$3}' pb_279_filtered_subreads.gfa|fold >pb_279.fasta;
-awk '/^S/{print ">"$2"\n"$3}' pb_320-2_filtered_subreads.gfa|fold >pb_320-2.fasta; 
+awk '/^S/{print ">"$2"\n"$3}' pb_279_filtered_subreads.gfa >pb_279.fasta;
+awk '/^S/{print ">"$2"\n"$3}' pb_320-2_filtered_subreads.gfa >pb_320-2.fasta; 
+
+# Generate Bandage plots for .gfa assemblies
+ls *.gfa|while read gfa;do Bandage image $gfa $gfa.jpg;done
+
+## canu(subreads correction & trimming & genome assembly)
+nohup canu -p pb_279 -d canuAssembly/default/pb_279/ genomeSize=74m errorRate=0.3 gnuplotTested=true -pacbio-raw pb_279_filtered_subreads.fastq.gz 
+nohup canu -p pb_320-2 -d canuAssembly/default/pb_320-2/ genomeSize=137m errorRate=0.3 gnuplotTested=true -pacbio-raw pb_320-2_filtered_subreads.fastq.gz 
+
+## Quast analysis for genome assemblies
+## As we know, the minimum threshold of a contig length for analysis in Quast's default setting is 500. However, this might not be the case here. Distribution of contig lengths of the previously generated genome assemblies have to be analyzed here using awk.
+# Check raven & miniasm assemblies ./default
+ls *.fasta|while read file;do for thres in {100..500..100};do awk -v file="$file" -v i="$thres" '/^[^>]/ {sum++;if(length($0)>=i){qualified++}} END{print qualified/sum}' $file;done;done #All output values are 1, 500 can be unchanged in QUAST analysis
+
+## Kmerfreq analysis for files of subreads
+nohup ./kmerfreq -f 1 -p pb_279 -t 30 subreads1.lib 
+nohup ./kmerfreq -f 1 -t 30 -p pb_320-2 subreads2.lib 
