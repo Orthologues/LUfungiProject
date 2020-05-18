@@ -60,5 +60,5 @@ nohup canu -p pb_320-2 -d canuAssembly/default/pb_320-2/ genomeSize=137m errorRa
 ls *.fasta|while read file;do for thres in {100..500..100};do awk -v file="$file" -v i="$thres" '/^[^>]/ {sum++;if(length($0)>=i){qualified++}} END{print qualified/sum}' $file;done;done #All output values are 1, 500 can be unchanged in QUAST analysis
 
 ## Kmerfreq analysis for files of subreads
-nohup ./kmerfreq -f 1 -p pb_279 -t 30 subreads1.lib 
-nohup ./kmerfreq -f 1 -t 30 -p pb_320-2 subreads2.lib 
+nohup ./kmerfreq -f 1 -p pb_279 -t 30 subreads1.lib;
+nohup ./kmerfreq -f 1 -t 30 -p pb_320-2 subreads2.lib; 
