@@ -22,7 +22,10 @@ nohup ./wtdbg2 -x rs -g ? -i ../pb_320-2_filtered_subreads.fastq.gz -t 20 -fo ..
 ls ../wtdbg2Assembly/*/*.ctg.lay.gz|while read path;do dir=$(echo $path|cut -d / -f 1-3);name=$(echo $path|cut -d / -f 4|cut -d . -f 1);nohup ./wtpoa-cns -t 20 -i $path -fo $dir/$name.raw.fa;done;
 
 ##In order to align original .fastq.gz files of long reads into .BAM files for genome polishing with arrow, it's necessary to use blasr(bowtie2 is used for short reads, inappropriate here)
-ls ../unzipped/*.fastq|while read subreads;do name=$(echo $subreads|cut -d / -f 3|cut -d _ -f 1,2);ref=$(echo ./$name*/$name*.raw.fa);dir=$(echo $ref|cut -d / -f 1,2);nohup blasr $subreads $ref --sam --out $dir/blasrBAM/$name.sam;done  #however, blasr doesn't work here, 'your subreads aren't PacBio reads'
+ls ../unzipped/*.fastq|while read subreads;do name=$(echo $subreads|cut -d / -f 3|cut -d _ -f 1,2);ref=$(echo ./$name*/$name*.raw.fa);dir=$(echo $ref|cut -d / -f 1,2);nohup blasr $subreads $ref --bam --out $dir/blasrBAM/$name.bam;done  #however, blasr doesn't work here, 'your subreads aren't PacBio reads'
+# As an attempt to solve the problem above, convert .fastq.gz files to .fasta subread files
+nohup ls *_filtered_subreads.fastq.gz|while read gz;do name=$(echo $gz|cut -d . -f 1);less $gz|grep -A 1 ^"@"|sed -r 's/^@/>/'> ${name}.fasta1;echo $name;done
+ls *.fasta1|while read fasta1;do name=$(echo $fasta1|cut -d . -f 1);grep -v "--" < $fasta1 > ${name}.fasta;done
 
 ##Long read assembly by Miniasm
 # Find overlaps by all-vs-all self-mappings via minimap2
@@ -62,6 +65,12 @@ nohup flye --pacbio-raw pb_320-2_filtered_subreads.fastq.gz --genome-size 137m -
 ## As we know, the minimum threshold of a contig length for analysis in Quast's default setting is 500. However, this might not be the case here. Distribution of contig lengths of the previously generated genome assemblies have to be analyzed here using awk.
 # Check raven & miniasm assemblies ./default
 ls *.fasta|while read file;do for thres in {100..500..100};do awk -v file="$file" -v i="$thres" '/^[^>]/ {sum++;if(length($0)>=i){qualified++}} END{print qualified/sum}' $file;done;done #All output values are 1, 500 can be unchanged in QUAST analysis
+# concatenate original genome assemblies to create reference genomes 
+cat *.fa > ../../../../../jiawei_zhao/LUfungiProject/OriginalAssemblies/pb_320-2_Mysco.fasta
+cat *.fa > ../../../../../jiawei_zhao/LUfungiProject/OriginalAssemblies/pb_279_Leuge.fasta
+# Quast analysis
+nohup quast.py -o pb_320-2_quast  pb_320-2_polished.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20
+nohup quast.py -o pb_279_quast/ pb_279-polished.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20
 
 ## Kmerfreq analysis for files of subreads
 nohup ./kmerfreq -f 1 -p pb_279 -t 30 subreads1.lib;
