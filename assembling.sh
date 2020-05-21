@@ -21,7 +21,7 @@ nohup ./wtdbg2 -x rs -g ? -i ../pb_320-2_filtered_subreads.fastq.gz -t 20 -fo ..
 # derive raw consensus
 ls ../wtdbg2Assembly/*/*.ctg.lay.gz|while read path;do dir=$(echo $path|cut -d / -f 1-3);name=$(echo $path|cut -d / -f 4|cut -d . -f 1);nohup ./wtpoa-cns -t 20 -i $path -fo $dir/$name.raw.fa;done;
 
-##In order to convert original .fastq.gz files of short reads into .BAM files for genome polishing with arrow, it's necessary to use blasr(bowtie2 is used for short reads, inappropriate here)
+##In order to align original .fastq.gz files of long reads into .BAM files for genome polishing with arrow, it's necessary to use blasr(bowtie2 is used for short reads, inappropriate here)
 ls ../unzipped/*.fastq|while read subreads;do name=$(echo $subreads|cut -d / -f 3|cut -d _ -f 1,2);ref=$(echo ./$name*/$name*.raw.fa);dir=$(echo $ref|cut -d / -f 1,2);nohup blasr $subreads $ref --sam --out $dir/blasrBAM/$name.sam;done  #however, blasr doesn't work here, 'your subreads aren't PacBio reads'
 
 ##Long read assembly by Miniasm
@@ -53,6 +53,10 @@ ls *.gfa|while read gfa;do Bandage image $gfa $gfa.jpg;done
 ## canu(subreads correction & trimming & genome assembly)
 nohup canu -p pb_279 -d canuAssembly/default/pb_279/ genomeSize=74m errorRate=0.3 gnuplotTested=true -pacbio-raw pb_279_filtered_subreads.fastq.gz 
 nohup canu -p pb_320-2 -d canuAssembly/default/pb_320-2/ genomeSize=137m errorRate=0.3 gnuplotTested=true -pacbio-raw pb_320-2_filtered_subreads.fastq.gz 
+
+## repeat graph genome assembly & polishing by flye
+nohup flye --pacbio-raw pb_279_filtered_subreads.fastq.gz --genome-size 74m --out-dir flyeAssembly/default/pb_279/ --threads 20
+nohup flye --pacbio-raw pb_320-2_filtered_subreads.fastq.gz --genome-size 137m --out-dir flyeAssembly/default/pb_320-2/ --threads 20
 
 ## Quast analysis for genome assemblies
 ## As we know, the minimum threshold of a contig length for analysis in Quast's default setting is 500. However, this might not be the case here. Distribution of contig lengths of the previously generated genome assemblies have to be analyzed here using awk.
