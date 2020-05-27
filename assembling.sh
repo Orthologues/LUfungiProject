@@ -46,6 +46,12 @@ awk '/^S/{print ">"$2"\n"$3}' pb_320-2_polished.gfa > pb_320-2_polished.fasta
 
 ## Genome assembling and polishing by raven with default setting
 ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1);nohup raven --graphical-fragment-assembly ravenAssembly/default/$name.gfa  -t 20  $fastq;echo $name;done 
+# change the alignment parameters
+ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1);nohup raven -m 2 -n -6 -g -4 --graphical-fragment-assembly ravenAssembly/par1/${name}p2m2n-6g-4.gfa -t 20 $fastq;echo $fastq;done
+ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1);nohup raven -p 3 -m 3 -n -5 -g -4 --graphical-fragment-assembly ravenAssembly/par2/${name}p3m3n-5g-4.gfa -t 20 $fastq;echo $fastq;done;
+ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1);nohup raven -p 3 -m 2 -n -6 -g -4 --graphical-fragment-assembly ravenAssembly/par3/${name}p3m2n-6g-4.gfa -t 20 $fastq;echo $fastq;done;
+ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1);nohup raven -p 1 -m 2 -n -6 -g -4 --graphical-fragment-assembly ravenAssembly/par4/${name}p1m2n-6g-4.gfa -t 20 $fastq;echo $fastq;done;
+ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1);nohup raven -p 1 -m 3 -n -5 -g -4 --graphical-fragment-assembly ravenAssembly/par5/${name}p1m3n-5g-4.gfa -t 20 $fastq;echo $fastq;done;
 # Convert .gfa files to .fasta files
 awk '/^S/{print ">"$2"\n"$3}' pb_279_filtered_subreads.gfa >pb_279.fasta;
 awk '/^S/{print ">"$2"\n"$3}' pb_320-2_filtered_subreads.gfa >pb_320-2.fasta; 
@@ -71,6 +77,8 @@ cat *.fa > ../../../../../jiawei_zhao/LUfungiProject/OriginalAssemblies/pb_279_L
 # Quast analysis
 nohup quast.py -o pb_320-2_quast  pb_320-2_polished.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20
 nohup quast.py -o pb_279_quast/ pb_279-polished.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20
+# find out all directories which store the results of Quast analysis
+find -type d -name "*quast*"
 
 ## Kmerfreq analysis for files of subreads
 nohup ./kmerfreq -f 1 -p pb_279 -t 30 subreads1.lib;
