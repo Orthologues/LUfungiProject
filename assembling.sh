@@ -83,3 +83,15 @@ find -type d -name "*quast*"
 ## Kmerfreq analysis for files of subreads
 nohup ./kmerfreq -f 1 -p pb_279 -t 30 subreads1.lib;
 nohup ./kmerfreq -f 1 -t 30 -p pb_320-2 subreads2.lib; 
+
+##Assembly by pb-assembly
+#Convert .fastq.gz files to .fasta files as required
+nohup less pb_279_filtered_subreads.fastq.gz|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_279_filtered_subreads.fasta;
+nohup less pb_320-2_filtered_subreads.fastq.gz|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_320-2_filtered_subreads.fasta;
+# Create symbolic links for the directories which contain .bax.h5 files
+ln -s ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_279/rawdata/run1 pb_279_raw
+ln -s ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_320-2/raw/run1 pb_320-2_raw
+#Create an input list for .bax.h5 files
+ls pb_279_raw/*/Analysis_Results/*.bax.h5 >> pb_279_baxh5.txt
+ls pb_320-2_raw/*/Analysis_Results/*.bax.h5 >> pb_320-2_baxh5.txt
+#Use bax2bam to create .bam subread files which are necessary for input of pb-assembly
