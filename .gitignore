@@ -16,3 +16,10 @@ wtdbg2Assembly
 kmerfreq
 nohup.out
 OriginalAssemblies
+falconAssembly
+pb_320-2_baxh5.txt
+pb_279_baxh5.txt
+pb_320-2_raw
+pb_279_raw
+pb_279_filtered_subreads.fasta
+pb_320-2_filtered_subreads.fasta
