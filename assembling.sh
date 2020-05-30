@@ -94,4 +94,8 @@ ln -s ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INB
 #Create an input list for .bax.h5 files
 ls pb_279_raw/*/Analysis_Results/*.bax.h5 >> pb_279_baxh5.txt
 ls pb_320-2_raw/*/Analysis_Results/*.bax.h5 >> pb_320-2_baxh5.txt
+for i in {3..24..3};do sed -n "$(echo "$i-2"|bc),${i}p" < pb_279_baxh5.txt >> bamfiles/pb_279_list/pb_279_bax_list$(echo "$i/3"|bc).txt;done
+for i in {3..24..3};do sed -n "$(echo "$i-2"|bc),${i}p" < pb_320-2_baxh5.txt >> bamfiles/pb_320-2_list/pb_320-2_bax_list$(echo "$i/3"|bc).txt;done
 #Use bax2bam to create .bam subread files which are necessary for input of pb-assembly
+for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_279_list/pb_279_bax_list${i}.txt -o bamfiles/pb_279/${i}subreads --subread;done
+for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_320-2_list/pb_320-2_bax_list${i}.txt -o bamfiles/pb_320-2/${i}subreads --subread;done
