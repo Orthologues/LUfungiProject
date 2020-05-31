@@ -68,7 +68,7 @@ nohup flye --pacbio-raw pb_279_filtered_subreads.fastq.gz --genome-size 74m --ou
 nohup flye --pacbio-raw pb_320-2_filtered_subreads.fastq.gz --genome-size 137m --out-dir flyeAssembly/default/pb_320-2/ --threads 20
 
 ## Quast analysis for genome assemblies
-## As we know, the minimum threshold of a contig length for analysis in Quast's default setting is 500. However, this might not be the case here. Distribution of contig lengths of the previously generated genome assemblies have to be analyzed here using awk.
+## As we know, the minimum threshold of a contig length for analysis in Quast's default setting is 500. However, this might not be the case here. Distribution of contig lengths of the previously generated genome assemblies has to be analyzed here using awk.
 # Check raven & miniasm assemblies ./default
 ls *.fasta|while read file;do for thres in {100..500..100};do awk -v file="$file" -v i="$thres" '/^[^>]/ {sum++;if(length($0)>=i){qualified++}} END{print qualified/sum}' $file;done;done #All output values are 1, 500 can be unchanged in QUAST analysis
 # concatenate original genome assemblies to create reference genomes 
@@ -98,4 +98,16 @@ for i in {3..24..3};do sed -n "$(echo "$i-2"|bc),${i}p" < pb_279_baxh5.txt >> ba
 for i in {3..24..3};do sed -n "$(echo "$i-2"|bc),${i}p" < pb_320-2_baxh5.txt >> bamfiles/pb_320-2_list/pb_320-2_bax_list$(echo "$i/3"|bc).txt;done
 #Use bax2bam to create .bam subread files which are necessary for input of pb-assembly
 for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_279_list/pb_279_bax_list${i}.txt -o bamfiles/pb_279/${i}subreads --subread;done
-for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_320-2_list/pb_320-2_bax_list${i}.txt -o bamfiles/pb_320-2/${i}subreads --subread;done
+for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_320-2_list/pb_320-2_bax_list${i}.txt -o bamfiles/pb_320-2/${i}subreads --subread;done 
+#Create .fofn files which contain paths of .fasta and .bam files for falcon & falcon-unzip
+ls ../bamfiles/pb_279/*.subreads.bam|while read bam;do echo $bam >> pb_279_bam.fofn;done
+ls ../bamfiles/pb_320-2/*.subreads.bam|while read bam;do echo $bam >> pb_320-2_bam.fofn;done
+echo "../pb_279_filtered_subreads.fasta" >> pb_279_fa.fofn 
+echo "../pb_320-2_filtered_subreads.fasta" >> pb_320-2_fa.fofn 
+#Download reference .cfg files and then modify it to fit specific requirements
+wget https://pb-falcon.readthedocs.io/en/latest/_downloads/fc_run_fungal.cfg
+wget https://pb-falcon.readthedocs.io/en/latest/_downloads/fc_unzip.cfg
+#Start fc_run to do 0.pre-assembly 1.pread overlapping 2.contig assembly 
+nohup fc_run ../mycfgs/fc_pb_279_v1.cfg &> run0.log &  #the first &> means to output both stderr and stdout to run0.log, & at the end of this command means running the command on background
+nohup fc_run ../mycfgs/fc_pb_320-2_v1.cfg &> run0.log & 
+
