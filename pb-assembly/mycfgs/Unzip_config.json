@@ -1,0 +1,7 @@
+{
+  "input_bam_fofn": "../pb_320-2_bam.fofn",
+  "input_fofn": "../pb_320-2_fa.fofn",
+  "polish_include_zmw_all_subreads": true,
+  "polish_use_blasr": false,
+  "polish_vc_ignore_error": false
+}
