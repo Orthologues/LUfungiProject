@@ -50,7 +50,7 @@ minipolish -h
 ```
 
 ### Official github page
-[OfficialLink](https://github.com/rrwick/Minipolish#installation)
+- [OfficialLink](https://github.com/rrwick/Minipolish#installation)
 
 ## raven
 
