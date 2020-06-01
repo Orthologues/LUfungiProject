@@ -6,7 +6,6 @@ pb_320-2_filtered_subreads.fastq.gz
 racon
 genome_assemblies
 unzipped
-canuAssembly
 flyeAssembly
 miniasmAssembly
 ravenAssembly
@@ -14,7 +13,6 @@ wtdbg2Assembly
 kmerfreq
 nohup.out
 OriginalAssemblies
-falconAssembly
 pb_320-2_baxh5.txt
 pb_279_baxh5.txt
 pb_320-2_raw
