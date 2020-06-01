@@ -100,14 +100,28 @@ for i in {3..24..3};do sed -n "$(echo "$i-2"|bc),${i}p" < pb_320-2_baxh5.txt >> 
 for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_279_list/pb_279_bax_list${i}.txt -o bamfiles/pb_279/${i}subreads --subread;done
 for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_320-2_list/pb_320-2_bax_list${i}.txt -o bamfiles/pb_320-2/${i}subreads --subread;done 
 #Create .fofn files which contain paths of .fasta and .bam files for falcon & falcon-unzip
+cd pb-assembly
 ls ../bamfiles/pb_279/*.subreads.bam|while read bam;do echo $bam >> pb_279_bam.fofn;done
 ls ../bamfiles/pb_320-2/*.subreads.bam|while read bam;do echo $bam >> pb_320-2_bam.fofn;done
 echo "../pb_279_filtered_subreads.fasta" >> pb_279_fa.fofn 
 echo "../pb_320-2_filtered_subreads.fasta" >> pb_320-2_fa.fofn 
-#Download reference .cfg files and then modify it to fit specific requirements
+#Download reference .cfg files and then modify it to fit specific requirements & download evaluation scripts
 wget https://pb-falcon.readthedocs.io/en/latest/_downloads/fc_run_fungal.cfg
-wget https://pb-falcon.readthedocs.io/en/latest/_downloads/fc_unzip.cfg
+git init 
+git remote add cfg https://github.com/PacificBiosciences/pb-assembly/
+git config core.sparsecheckout true
+echo "cfgs" >> .git/info/sparse-checkout
+echo "scripts" >> .git/info/sparse-checkout #only these two repositories ("cfgs" and "scripts") would be added into the checkout list of pulling
+git pull cfg master
+cp cfgs/fc_unzip.cfg mycfgs/
+cp cfgs/fc_phase.cfg mycfgs/
 #Start fc_run to do 0.pre-assembly 1.pread overlapping 2.contig assembly 
 nohup fc_run ../mycfgs/fc_pb_279_v1.cfg &> run0.log &  #the first &> means to output both stderr and stdout to run0.log, & at the end of this command means running the command on background
 nohup fc_run ../mycfgs/fc_pb_320-2_v1.cfg &> run0.log & 
+#Evaluate Assembly Performance
+python ../scripts/get_asm_stats.py 2-asm-falcon/p_ctg.fa
+#Run FALCON-unzip to do 3.unzip 4.polish
+mv "all.log" "all0.log"
+nohup fc_unzip.py ../mycfgs/fc_unzip_pb_279.cfg &> run1.std &
+nohup fc_unzip.py ../mycfgs/fc_unzip_pb_320-2.cfg &> run1.std &
 
