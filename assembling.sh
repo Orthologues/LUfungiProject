@@ -85,6 +85,11 @@ nohup ./kmerfreq -f 1 -p pb_279 -t 30 subreads1.lib;
 nohup ./kmerfreq -f 1 -t 30 -p pb_320-2 subreads2.lib; 
 
 ##Assembly by pb-assembly
+#Create its corresponding env
+conda create -n denovo
+conda activate denovo
+conda install -c bioconda pb-assembly
+conda install -c bioconda samtools=1.9 --force-reinstall #make it compatible with openssl 1.1.1
 #Convert .fastq.gz files to .fasta files as required
 nohup less pb_279_filtered_subreads.fastq.gz|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_279_filtered_subreads.fasta;
 nohup less pb_320-2_filtered_subreads.fastq.gz|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_320-2_filtered_subreads.fasta;
@@ -119,7 +124,12 @@ cp cfgs/fc_phase.cfg mycfgs/
 nohup fc_run ../mycfgs/fc_pb_279_v1.cfg &> run0.log &  #the first &> means to output both stderr and stdout to run0.log, & at the end of this command means running the command on background
 nohup fc_run ../mycfgs/fc_pb_320-2_v1.cfg &> run0.log & 
 #Evaluate Assembly Performance
-python ../scripts/get_asm_stats.py 2-asm-falcon/p_ctg.fa
+nohup python ../scripts/get_asm_stats.py 2-asm-falcon/p_ctg.fa
+#Create symbolic links of original unpolished contig assemblies in my repo
+ln -s ../../../../shared_bioinformatics_master_projects/agaricalesGenomes/genome_assemblies/pb_320-2_Mysco/ ../../OriginalAssemblies/
+ln -s ../../../../shared_bioinformatics_master_projects/agaricalesGenomes/genome_assemblies/pb_279_Leuge/ ../../OriginalAssemblies/
+#Evaluate performance of reference assemblies
+
 #Run FALCON-unzip to do 3.unzip 4.polish
 mv "all.log" "all0.log"
 nohup fc_unzip.py ../mycfgs/fc_unzip_pb_279.cfg &> run1.std &
