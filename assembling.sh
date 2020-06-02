@@ -94,7 +94,7 @@ conda install -c bioconda samtools=1.9 --force-reinstall #make it compatible wit
 nohup less pb_279_filtered_subreads.fastq.gz|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_279_filtered_subreads.fasta;
 nohup less pb_320-2_filtered_subreads.fastq.gz|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_320-2_filtered_subreads.fasta;
 #Calculate the sequence length distribution of .fasta files
-nohup ls *.fasta|while read file;do nohup awk -v file="$file"  '/^[^>]/ {sum++;for(i=2000;i<=20000;i+=1000){if(length($0)>=i){qualified[(i-2000)/1000]++}}} END{print $file >> "lenstat.txt";print sum >> "lenstat.txt";for(i=0;i<=18;i++){printf("%d - %.2f\n",i*1000+2000,qualified[i]/sum*100) >> "lenstat.txt"}}' $file;done &
+nohup ls *.fasta|while read file;do nohup awk -v file="$file"  '/^[^>]/ {sum++;for(i=2000;i<=20000;i+=1000){if(length($0)>=i){qualified[(i-2000)/1000]++}}} END{print sum >> "lenstat.txt";for(i=0;i<=18;i++){printf("%d - %.2f\n",i*1000+2000,qualified[i]/sum*100) >> "lenstat.txt"}}' $file;done &
 # Create symbolic links for the directories which contain .bax.h5 files
 ln -s ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_279/rawdata/run1 pb_279_raw
 ln -s ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_320-2/raw/run1 pb_320-2_raw
