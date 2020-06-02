@@ -148,3 +148,5 @@ nohup quast.py -o step2_v1_quast/  pb_279_falcon_step2_v1.fasta -r ../../Origina
 nohup quast.py -o step3_v1_quast/  pb_279_falcon_step3_v1.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 &
 nohup quast.py -o step2_v1_quast/ pb_320-2_falcon_step2_v1.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
 nohup quast.py -o step3_v1_quast/ pb_320-2_falcon_step3_v1.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
+find -maxdepth 3 -name "*.pdf"|while read pdf;do cp $pdf ../../../shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/pb-assembly/;done
+
