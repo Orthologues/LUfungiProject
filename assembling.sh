@@ -143,6 +143,8 @@ cat 2-asm-falcon/p_ctg.fasta 2-asm-falcon/a_ctg.fasta > pb_279_falcon_step2_v1.f
 cat 3-unzip/all_p_ctg.fasta 3-unzip/all_h_ctg.fasta >pb_279_falcon_step3_v1.fasta
 cp *.fasta ../../../../shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/pb-assembly/
 cp *.fasta ../../../../shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/pb-assembly/
- 
-
-
+#do QUAST analysis for comparison 
+nohup quast.py -o step2_v1_quast/  pb_279_falcon_step2_v1.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 &
+nohup quast.py -o step3_v1_quast/  pb_279_falcon_step3_v1.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 &
+nohup quast.py -o step2_v1_quast/ pb_320-2_falcon_step2_v1.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
+nohup quast.py -o step3_v1_quast/ pb_320-2_falcon_step3_v1.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
