@@ -135,5 +135,14 @@ ln -s ../../../../shared_bioinformatics_master_projects/agaricalesGenomes/genome
 #Run FALCON-unzip to do 3.unzip 4.polish
 mv "all.log" "all0.log"
 nohup fc_unzip.py ../mycfgs/fc_unzip_pb_279.cfg &> run1.std &
-nohup fc_unzip.py ../mycfgs/fc_unzip_pb_320-2.cfg &> run1.std &
+nohup fc_unzip.py ../mycfgs/fc_unzip_pb_320-2.cfg &> run1.std & 
+#However, though '3-unzip' step was successful, '4-polish' failed because of the same unsolved issue as what the link https://github.com/PacificBiosciences/FALCON_unzip/issues/159 addresses. I decided to concatenate the output primary-contig & the associate-contig output file of 2-asm and the primary-contig & the haplotype-contig output file of '3-unzip' step in order to compare them to the original assembly each. Thus, blasr and Quiver will be used later to polish the concatenated output file of '3-unzip' step.
+cat 2-asm-falcon/p_ctg.fasta 2-asm-falcon/a_ctg.fasta > pb_320-2_falcon_step2_v1.fasta
+cat 3-unzip/all_p_ctg.fasta 3-unzip/all_h_ctg.fasta >pb_320-2_falcon_step3_v1.fasta
+cat 2-asm-falcon/p_ctg.fasta 2-asm-falcon/a_ctg.fasta > pb_279_falcon_step2_v1.fasta
+cat 3-unzip/all_p_ctg.fasta 3-unzip/all_h_ctg.fasta >pb_279_falcon_step3_v1.fasta
+cp *.fasta ../../../../shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/pb-assembly/
+cp *.fasta ../../../../shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/pb-assembly/
+ 
+
 
