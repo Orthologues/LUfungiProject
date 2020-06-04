@@ -2,6 +2,10 @@
 <p align="left">Litter decomposing fungi represent important agents of soil carbon cycling across terrestrial ecosystems ranging from tundra to tropical forests. The reasons behind the enormous success of litter decomposers are not well known, but it is reasonable to consider that this could be partly due to the diverse plant cell wall decomposition systems these fungi harbor. To examine the diversity of these systems in litter decomposers, we sequenced nine species with diverse habitat preferences from Agaricales, which represents one of the most species-rich order in mushroom forming fungi and in which many litter decomposers are found. All genomes were sequenced using PacBio and the assemblies of seven of these genomes were of good quality. However, the genome assemblies of Mycetinis scorodonius(Mysco, pb_320-2) and Leucopaxillus gentianeus(Leuge, pb_279) did not pass the strict quality standards, that we have set up in this project. The reasons for this could be related to the larger than expected genome size for both species in combination to their dikaryotic state. The successful genome assembly for the two species is of particular interest since both species are found exclusively on conifer litter and therefore, may harbor adaptations related to this recalcitrant type of substrate. Genome assembly tools for dikaryotic genomes are continuously improving, which poses a great opportunity to attempt again the assembly of the two remaining genomes using recently developed tools. </p>
 
 ***
++ [**Genome assemblers and polishers**](#intro1)
++ [**Evaluation tools**](#intro2)
+
+<a name="intro1"></a>
 # Introduction to software which would be used or tried for assembling genomes
 Because of the dikaryotic nature of these two fungi, falcon & falcon-unzip & falcon-phase is supposed to be the most appropriate combo here. Nonetheless, several other popular genome assemblers for PacBio subreads would be listed and tried as well. (However, CANU assembler was ultimately discarded since it really had taken too much time without results)
 
@@ -80,6 +84,7 @@ minipolish -h
 
 ## canu
 
+<a name="intro2"></a>
 # Introduction to software which would be used or tried for evaluation of raw data & assembly evaluation
 
 ## fastqc
