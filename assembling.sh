@@ -155,6 +155,9 @@ nohup blasr ../pb_320-2_bam.fofn pb_320-2_falcon_step3_v1.fasta --bam --out pb_3
 cd bamfiles
 nohup cat pb_279/*subreads.bam > pb_279_subreads.bam &
 nohup cat pb_320-2/*subreads.bam > pb_320-2_subreads.bam &
+#run pbmm2 to generate aligned .bam files
+nohup pbmm2 align --preset SUBREAD pb_279_falcon_step3_v1.fasta ../../bamfiles/pb_279_subreads.bam pb_279_v1_step3_aligned.bam &
+nohup pbmm2 align --preset SUBREAD pb_320-2_falcon_step3_v1.fasta ../../bamfiles/pb_320-2_subreads.bam pb_320-2_v1_step3_aligned.bam &
 #run quiver(genomicconsensus) with aligned .bam files and unzipped .fasta contig files to generate polished .fasta consensus files 
 
 #Change parameters to v2 and run falcon-assembler again
