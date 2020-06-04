@@ -104,12 +104,12 @@ ls pb_320-2_raw/*/Analysis_Results/*.bax.h5 >> pb_320-2_baxh5.txt
 for i in {3..24..3};do sed -n "$(echo "$i-2"|bc),${i}p" < pb_279_baxh5.txt >> bamfiles/pb_279_list/pb_279_bax_list$(echo "$i/3"|bc).txt;done
 for i in {3..24..3};do sed -n "$(echo "$i-2"|bc),${i}p" < pb_320-2_baxh5.txt >> bamfiles/pb_320-2_list/pb_320-2_bax_list$(echo "$i/3"|bc).txt;done
 #Use bax2bam to create .bam subread files which are necessary for input of pb-assembly
-for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_279_list/pb_279_bax_list${i}.txt -o bamfiles/pb_279/${i}subreads --subread;done
-for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_320-2_list/pb_320-2_bax_list${i}.txt -o bamfiles/pb_320-2/${i}subreads --subread;done 
+for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_279_list/pb_279_bax_list${i}.txt -o bamfiles/pb_279/${i} --subread;done
+for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_320-2_list/pb_320-2_bax_list${i}.txt -o bamfiles/pb_320-2/${i} --subread;done 
 #Create .fofn files which contain paths of .fasta and .bam files for falcon & falcon-unzip
 cd pb-assembly
-ls ../bamfiles/pb_279/*.subreads.bam|while read bam;do echo $bam >> pb_279_bam.fofn;done
-ls ../bamfiles/pb_320-2/*.subreads.bam|while read bam;do echo $bam >> pb_320-2_bam.fofn;done
+ls ../bamfiles/pb_279/*subreads.bam|while read bam;do echo $bam >> pb_279_bam.fofn;done
+ls ../bamfiles/pb_320-2/*subreads.bam|while read bam;do echo $bam >> pb_320-2_bam.fofn;done
 echo "../pb_279_filtered_subreads.fasta" >> pb_279_fa.fofn 
 echo "../pb_320-2_filtered_subreads.fasta" >> pb_320-2_fa.fofn 
 #Download reference .cfg files and then modify it to fit specific requirements & download evaluation scripts
