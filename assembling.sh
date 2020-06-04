@@ -130,8 +130,6 @@ nohup python ../scripts/get_asm_stats.py 2-asm-falcon/p_ctg.fa
 #Create symbolic links of original unpolished contig assemblies in my repo
 ln -s ../../../../shared_bioinformatics_master_projects/agaricalesGenomes/genome_assemblies/pb_320-2_Mysco/ ../../OriginalAssemblies/
 ln -s ../../../../shared_bioinformatics_master_projects/agaricalesGenomes/genome_assemblies/pb_279_Leuge/ ../../OriginalAssemblies/
-#Evaluate performance of reference assemblies
-
 #Run FALCON-unzip to do 3.unzip 4.polish
 mv "all.log" "all0.log"
 nohup fc_unzip.py ../mycfgs/fc_unzip_pb_279.cfg &> run1.std &
@@ -150,3 +148,6 @@ nohup quast.py -o step2_v1_quast/ pb_320-2_falcon_step2_v1.fasta -r ../../Origin
 nohup quast.py -o step3_v1_quast/ pb_320-2_falcon_step3_v1.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
 find -maxdepth 3 -name "*.pdf"|while read pdf;do cp $pdf ../../../shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/pb-assembly/;done
 
+#Change parameters to v2 and run falcon-assembler again
+nohup fc_run ../mycfgs/fc_pb_279_v2.cfg &> run0.log &
+nohup fc_run ../mycfgs/fc_pb_320-2_v2.cfg &> run0.log &
