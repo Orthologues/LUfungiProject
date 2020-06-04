@@ -16,6 +16,17 @@ blasr -h
 ### Official Github Page
 - [OfficialLink](https://github.com/PacificBiosciences/blasr)
 
+## pbmm2
+pbmm2 is a SMRT C++ wrapper for minimap2's C API. Its purpose is to support native PacBio in- and output, provide sets of recommended parameters, generate sorted output on-the-fly, and postprocess alignments. Sorted output can be used directly for polishing using GenomicConsensus, if BAM has been used as input to pbmm2. Benchmarks show that pbmm2 outperforms BLASR in sequence identity, number of mapped bases, and especially runtime. pbmm2 is the official replacement for BLASR.
+
+### Installation and help
+```bash
+conda install -c bioconda pbmm2
+pbmm2 -h
+```
+### Official Github Page
+- [OfficialLink](https://github.com/PacificBiosciences/pbmm2)
+
 ## GenomicConsensus
 The GenomicConsensus package provides the variant Caller tool, which allows you to apply the Quiver or Arrow algorithm to mapped PacBio reads to get consensus and variant calls. It will be used as one of the dependencies of falcon-unzip of pb-assembly. It would require unaligned .bam files as raw sequence data with 'signal pulse' information and be used for phased-polishing with Arrow.
 
@@ -30,6 +41,17 @@ arrow -h
 - [OfficialLink](https://github.com/PacificBiosciences/GenomicConsensus)
 
 ## pb-assembly
+pb-assembly is an official PacBio combo of three genome assembly tools - falcon, falcon-unzip and falcon-phase. It provides an integrated workflow to assemble diploid genomes from subread files whose formats are .fasta and .bam.
+### Installation and help
+
+```bash
+conda create -n denovo
+conda activate denovo
+conda install -c bioconda pb-assembly
+fc_run.py -h
+```
+### Official Github Page
+- [OfficialLink](https://github.com/PacificBiosciences/pb-assembly)
 
 ## miniasm
 Miniasm is a rather particular long-read assembler as it doesn't include a consensus step. The resulting contigs are just merged erroneous long reads and still contains many sequencing errors. Produced contigs are structually correct, but at the nucleotide level, there're many mismatches and indels. Its output format is .gfa.
