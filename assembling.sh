@@ -158,8 +158,14 @@ nohup cat pb_320-2/*subreads.bam > pb_320-2_subreads.bam &
 #run pbmm2 to generate aligned .bam files
 nohup pbmm2 align --preset SUBREAD pb_279_falcon_step3_v1.fasta ../../bamfiles/pb_279_subreads.bam pb_279_v1_step3_aligned.bam &
 nohup pbmm2 align --preset SUBREAD pb_320-2_falcon_step3_v1.fasta ../../bamfiles/pb_320-2_subreads.bam pb_320-2_v1_step3_aligned.bam &
-#run quiver(genomicconsensus) with aligned .bam files and unzipped .fasta contig files to generate polished .fasta consensus files 
+#pbmm2 doesn't work as well. Error message is 'terminate called without an active exception'. 
 
+#Try to recreate 'denovo' env with py2.7
+conda env remove -n denovo
+conda create -n denovo python=2.7
+conda activate denovo
+conda install -c bioconda/label/cf201901 nim-falcon #https://github.com/PacificBiosciences/pbbioconda/issues/265
+conda install -c bioconda pb-assembly
 #Change parameters to v2 and run falcon-assembler again
 nohup fc_run ../mycfgs/fc_pb_279_v2.cfg &> run0.log &
 nohup fc_run ../mycfgs/fc_pb_320-2_v2.cfg &> run0.log &
