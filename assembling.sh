@@ -134,7 +134,7 @@ ln -s ../../../../shared_bioinformatics_master_projects/agaricalesGenomes/genome
 mv "all.log" "all0.log"
 nohup fc_unzip.py ../mycfgs/fc_unzip_pb_279.cfg &> run1.std &
 nohup fc_unzip.py ../mycfgs/fc_unzip_pb_320-2.cfg &> run1.std & 
-#However, though '3-unzip' step was successful, '4-polish' failed because of the same unsolved issue as what the link https://github.com/PacificBiosciences/FALCON_unzip/issues/159 addresses. I decided to concatenate the output primary-contig & the associate-contig output file of 2-asm and the primary-contig & the haplotype-contig output file of '3-unzip' step in order to compare them to the original assembly each. Thus, blasr and Quiver will be used later to polish the concatenated output file of '3-unzip' step.
+#However, though '3-unzip' step was successful, '4-polish' failed because of the same unsolved issue as what the link https://github.com/PacificBiosciences/FALCON_unzip/issues/159 addresses. I decided to concatenate the output primary-contig & the associate-contig output file of 2-asm and the primary-contig & the haplotype-contig output file of '3-unzip' step in order to compare them to the original assembly each. Thus, blasr and arrow will be used later to polish the concatenated output file of '3-unzip' step.
 cat 2-asm-falcon/p_ctg.fasta 2-asm-falcon/a_ctg.fasta > pb_320-2_falcon_step2_v1.fasta
 cat 3-unzip/all_p_ctg.fasta 3-unzip/all_h_ctg.fasta >pb_320-2_falcon_step3_v1.fasta
 cat 2-asm-falcon/p_ctg.fasta 2-asm-falcon/a_ctg.fasta > pb_279_falcon_step2_v1.fasta
@@ -170,3 +170,12 @@ conda install -c bioconda samtools=1.9 --force-reinstall #https://github.com/bio
 #Change parameters to v2 and run falcon-assembler again
 nohup fc_run ../mycfgs/fc_pb_279_v2.cfg &> run0.log &
 nohup fc_run ../mycfgs/fc_pb_320-2_v2.cfg &> run0.log &
+nohup fc_unzip.py ../mycfgs/fc_unzip_pb_279.cfg &> run1.std &
+nohup fc_unzip.py ../mycfgs/fc_unzip_pb_320-2.cfg &> run1.std & 
+#However, though '3-unzip' step was successful, '4-polish' failed because of the same unsolved issue as what the link https://github.com/PacificBiosciences/FALCON_unzip/issues/159 addresses. I decided to concatenate the output primary-contig & the associate-contig output file of 2-asm and the primary-contig & the haplotype-contig output file of '3-unzip' step in order to compare them to the original assembly each. Thus, blasr and arrow will be used later to polish the concatenated output file of '3-unzip' step.
+nohup blasr ../../bamfiles/pb_279_subreads.bam pb_279_falcon_step3_v2.fasta --bam --out pb_279_step3_v2_aligned.bam --nproc 20 &
+nohup blasr ../../bamfiles/pb_320-2_subreads.bam pb_320-2_falcon_step3_v2.fasta --bam --out pb_320-2_step3_v2_aligned.bam --nproc 20 & 
+# all these blasr commands terminated with only output files in .bam.tmp format. From msg in nohup.out, it seems that the unaligned .bam files which I generated above have problems. Nonetheless, I changed their suffix from .bam.tmp to .bam and went forward as an attempt.
+nohup arrow pb_279_step3_v2_aligned.bam -r pb_279_falcon_step3_v2.fasta -o pb_279_step3_v2_polished.fasta -o pb_279_step3_v2_polished.fastq -j 20 -pdb --diploid &
+nohup arrow pb_320-2_step3_v2_aligned.bam -r pb_320-2_falcon_step3_v2.fasta -o pb_320-2_step3_v2_polished.fasta -o pb_320-2_step3_v2_polished.fastq -j 20 -pdb --diploid &
+# However, 'no BGZF EOF marker; file may be truncated' is given here from genomicconsensus. In order to solve this issue, I used the script from https://github.com/peterjc/picobio/blob/master/sambam/bgzf_add_eof.py to process .bam files
