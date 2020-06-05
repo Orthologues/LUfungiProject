@@ -167,8 +167,6 @@ conda activate denovo
 conda install -c bioconda/label/cf201901 nim-falcon #https://github.com/PacificBiosciences/pbbioconda/issues/265
 conda install -c bioconda pb-assembly
 conda install -c bioconda samtools=1.9 --force-reinstall #https://github.com/bioconda/bioconda-recipes/issues/13958
-conda list|grep py_3
-conda install -c bioconda pbcommand=1.1.1=py27_2 --force-reinstall
 #Change parameters to v2 and run falcon-assembler again
 nohup fc_run ../mycfgs/fc_pb_279_v2.cfg &> run0.log &
 nohup fc_run ../mycfgs/fc_pb_320-2_v2.cfg &> run0.log &
