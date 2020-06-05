@@ -179,3 +179,8 @@ nohup blasr ../../bamfiles/pb_320-2_subreads.bam pb_320-2_falcon_step3_v2.fasta 
 nohup arrow pb_279_step3_v2_aligned.bam -r pb_279_falcon_step3_v2.fasta -o pb_279_step3_v2_polished.fasta -o pb_279_step3_v2_polished.fastq -j 20 -pdb --diploid &
 nohup arrow pb_320-2_step3_v2_aligned.bam -r pb_320-2_falcon_step3_v2.fasta -o pb_320-2_step3_v2_polished.fasta -o pb_320-2_step3_v2_polished.fastq -j 20 -pdb --diploid &
 # However, 'no BGZF EOF marker; file may be truncated' is given here from genomicconsensus. In order to solve this issue, I used the script from https://github.com/peterjc/picobio/blob/master/sambam/bgzf_add_eof.py to process .bam files
+./bgzf_add_eof.py pb_279_step3_v2_aligned.bam
+./bgzf_add_eof.py pb_320-2_step3_v2_aligned.bam 
+# Try genomicconsensus again with the revised .bam files
+nohup arrow pb_279_step3_v2_aligned.bam -r pb_279_falcon_step3_v2.fasta -o pb_279_step3_v2_polished.fasta -o pb_279_step3_v2_polished.fastq -j 20 -pdb --diploid &
+nohup arrow pb_320-2_step3_v2_aligned.bam -r pb_320-2_falcon_step3_v2.fasta -o pb_320-2_step3_v2_polished.fasta -o pb_320-2_step3_v2_polished.fastq -j 20 -pdb --diploid &
