@@ -197,3 +197,10 @@ cd ~/LUfungiProject/pb-assembly/pb_320-2_v1
 nohup busco -m genome -i pb_320-2_falcon_step3_v1.fasta -o step3_busco -l fungi_odb10 &
 cd ~/LUfungiProject/pb-assembly/pb_320-2_v2
 nohup busco -m genome -i pb_320-2_falcon_step3_v2.fasta -o step3_busco -l fungi_odb10 &
+# Do summary plotting for each busco analysis
+cd ~/LUfungiProject/pb-assembly/pb_?_v?
+mkdir summaries
+cp short_summary.specific.fungi_odb10.step3_busco.txt summaries/
+nohup generate_plot.py -wd summaries/ &
+
+
