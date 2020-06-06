@@ -174,3 +174,12 @@ nohup arrow pb_320-2_step3_v2_aligned.bam -r pb_320-2_falcon_step3_v2.fasta -o p
 # Try to generate .bam files from .bax.h5 files again
 nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_279_list/pb_279_bax_list${i}.txt -o bamfiles/pb_279/${i} --subread --allowUnrecognizedChemistryTriple;done' &
 nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_320-2_list/pb_320-2_bax_list${i}.txt -o bamfiles/pb_320-2/${i} --subread --allowUnrecognizedChemistryTriple;done' &
+# Both blasr and pbmm2 failed again regardless of my attempt above
+
+# Install busco and do busco analysis instead
+conda create -n your_env_name -c bioconda -c conda-forge busco=4.0.6 python=3.7
+conda activate busco
+cd pb-assembly/pb_279_v2
+wget https://busco-data.ezlab.org/v4/data/lineages/fungi_odb10.2019-12-13.tar.gz #https://busco.ezlab.org/frames/fungi.html
+tar -xzvf fungi_odb10.2019-12-13.tar.gz 
+nohup busco -m genome -i pb_279_falcon_step3_v2.fasta -o buscoOutput -l fungi_odb10 &
