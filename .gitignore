@@ -1,6 +1,5 @@
 fastqcReports
 multiQCreports
-wtdbg2
 pb_279_filtered_subreads.fastq.gz
 pb_320-2_filtered_subreads.fastq.gz
 racon
@@ -9,7 +8,6 @@ unzipped
 flyeAssembly
 miniasmAssembly
 ravenAssembly
-wtdbg2Assembly
 kmerfreq
 nohup.out
 OriginalAssemblies
