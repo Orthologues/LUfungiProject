@@ -172,5 +172,5 @@ nohup arrow pb_320-2_step3_v2_aligned.bam -r pb_320-2_falcon_step3_v2.fasta -o p
 # An eerie error occured though: [ERROR] Genomic Consensus only works with cmp.h5 files and BAM files with accompanying .pbi files
 
 # Try to generate .bam files from .bax.h5 files again
-for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_279_list/pb_279_bax_list${i}.txt -o bamfiles/pb_279/${i} --subread --allowUnrecognizedChemistryTriple &;done
-for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_320-2_list/pb_320-2_bax_list${i}.txt -o bamfiles/pb_320-2/${i} --subread --allowUnrecognizedChemistryTriple &;done 
+for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_279_list/pb_279_bax_list${i}.txt -o bamfiles/pb_279/${i} --subread --allowUnrecognizedChemistryTriple;done &
+for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_320-2_list/pb_320-2_bax_list${i}.txt -o bamfiles/pb_320-2/${i} --subread --allowUnrecognizedChemistryTriple;done &
