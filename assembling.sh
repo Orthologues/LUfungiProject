@@ -180,6 +180,4 @@ nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_320-2_list/pb_32
 conda create -n your_env_name -c bioconda -c conda-forge busco=4.0.6 python=3.7
 conda activate busco
 cd pb-assembly/pb_279_v2
-wget https://busco-data.ezlab.org/v4/data/lineages/fungi_odb10.2019-12-13.tar.gz #https://busco.ezlab.org/frames/fungi.html
-tar -xzvf fungi_odb10.2019-12-13.tar.gz 
-nohup busco -m genome -i pb_279_falcon_step3_v2.fasta -o buscoOutput -l fungi_odb10 &
+nohup busco -m genome -i pb_279_falcon_step3_v2.fasta -o buscoOutput -l fungi_odb10 & #https://busco.ezlab.org/frames/fungi.html
