@@ -182,9 +182,16 @@ nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_320-2_list/pb_32
 cd ~/LUfungiProject/pb-assembly/
 rm pb_279_bam.fofn
 rm pb_320-2_bam.fofn
-ls ../bamfiles/pb_279/*subreads.bam|while read bam;do echo $bam >> pb_279_bam.fofn;done
-ls ../bamfiles/pb_320-2/*subreads.bam|while read bam;do echo $bam >> pb_320-2_bam.fofn;done
-# Both blasr and pbmm2 failed again regardless of my attempt above
+cd ~/LUfungiProject/pb-assembly/pb_279_v1
+ls ../../bamfiles/pb_279/*subreads.bam|while read bam;do echo $bam >> pb_279_bam.fofn;done
+nohup blasr pb_279_bam.fofn pb_279_falcon_step3_v1.fasta --bam --out pb_279_v1_aligned.bam --nproc 20 & #blasr succeeded this time
+nohup pbindex pb_279_v1_aligned.bam &
+nohup arrow pb_279_v1_aligned.bam -r pb_279_falcon_step3_v2.fasta -o pb_279_step3_v2_polished.fasta -o pb_279_step3_v2_polished.fastq -j 20 -pdb --diploid &
+cd ~/LUfungiProject/pb-assembly/pb_320-2_v1
+ls ../../bamfiles/pb_320-2/*subreads.bam|while read bam;do echo $bam >> pb_320-2_bam.fofn;done
+nohup blasr pb_320-2_bam.fofn pb_320-2_falcon_step3_v1.fasta --bam --out pb_320-2_v1_aligned.bam --nproc 20 & 
+nohup pbindex pb_320-2_v1_aligned.bam &
+nohup arrow pb_320-2_v1_aligned.bam -r pb_320-2_falcon_step3_v2.fasta -o pb_320-2_step3_v2_polished.fasta -o pb_320-2_step3_v2_polished.fastq -j 20 -pdb --diploid &
 
 # Install busco and do busco analysis instead
 conda create -n your_env_name -c bioconda -c conda-forge busco=4.0.6 python=3.7
