@@ -174,6 +174,11 @@ nohup arrow pb_320-2_step3_v2_aligned.bam -r pb_320-2_falcon_step3_v2.fasta -o p
 # Try to generate .bam files from .bax.h5 files again
 nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_279_list/pb_279_bax_list${i}.txt -o bamfiles/pb_279/${i} --subread --allowUnrecognizedChemistryTriple;done' &
 nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_320-2_list/pb_320-2_bax_list${i}.txt -o bamfiles/pb_320-2/${i} --subread --allowUnrecognizedChemistryTriple;done' &
+cd pb-assembly
+rm pb_279_bam.fofn
+rm pb_320-2_bam.fofn
+ls ../bamfiles/pb_279/*subreads.bam|while read bam;do echo $bam >> pb_279_bam.fofn;done
+ls ../bamfiles/pb_320-2/*subreads.bam|while read bam;do echo $bam >> pb_320-2_bam.fofn;done
 # Both blasr and pbmm2 failed again regardless of my attempt above
 
 # Install busco and do busco analysis instead
