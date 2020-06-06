@@ -133,8 +133,12 @@ nohup quast.py -o step2_v1_quast/ pb_320-2_falcon_step2_v1.fasta -r ../../Origin
 nohup quast.py -o step3_v1_quast/ pb_320-2_falcon_step3_v1.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
 find -maxdepth 3 -name "*.pdf"|while read pdf;do cp $pdf ../../../shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/pb-assembly/;done
 #run blasr to generate aligned .bam files
-nohup blasr ../pb_279_bam.fofn pb_279_falcon_step3_v1.fasta --bam --out pb_279_v1_aligned.bam --nproc 20 &
-nohup blasr ../pb_320-2_bam.fofn pb_320-2_falcon_step3_v1.fasta --bam --out pb_320-2_v1_aligned.bam --nproc 20 & 
+cd ~/LUfungiProject/pb-assembly/pb_279_v1
+ls ../../bamfiles/pb_279/*subreads.bam|while read bam;do echo $bam >> pb_279_bam.fofn;done
+nohup blasr pb_279_bam.fofn pb_279_falcon_step3_v1.fasta --bam --out pb_279_v1_aligned.bam --nproc 20 &
+cd ~/LUfungiProject/pb-assembly/pb_320-2_v1
+ls ../../bamfiles/pb_320-2/*subreads.bam|while read bam;do echo $bam >> pb_320-2_bam.fofn;done
+nohup blasr pb_320-2_bam.fofn pb_320-2_falcon_step3_v1.fasta --bam --out pb_320-2_v1_aligned.bam --nproc 20 & 
 #blasr is outdated and doesn't work here try pbmm2 instead
 #In order to make the output files compatible with genomicconsensus, concatenate separate .bam files to one .bam file for each fungus
 cd bamfiles
