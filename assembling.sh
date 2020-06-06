@@ -176,9 +176,10 @@ nohup arrow pb_320-2_step3_v2_aligned.bam -r pb_320-2_falcon_step3_v2.fasta -o p
 # An eerie error occured though: [ERROR] Genomic Consensus only works with cmp.h5 files and BAM files with accompanying .pbi files
 
 # Try to generate .bam files from .bax.h5 files again
+cd ~/LUfungiProject/
 nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_279_list/pb_279_bax_list${i}.txt -o bamfiles/pb_279/${i} --subread --allowUnrecognizedChemistryTriple;done' &
 nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_320-2_list/pb_320-2_bax_list${i}.txt -o bamfiles/pb_320-2/${i} --subread --allowUnrecognizedChemistryTriple;done' &
-cd pb-assembly
+cd ~/LUfungiProject/pb-assembly/
 rm pb_279_bam.fofn
 rm pb_320-2_bam.fofn
 ls ../bamfiles/pb_279/*subreads.bam|while read bam;do echo $bam >> pb_279_bam.fofn;done
@@ -188,5 +189,11 @@ ls ../bamfiles/pb_320-2/*subreads.bam|while read bam;do echo $bam >> pb_320-2_ba
 # Install busco and do busco analysis instead
 conda create -n your_env_name -c bioconda -c conda-forge busco=4.0.6 python=3.7
 conda activate busco
-cd pb-assembly/pb_279_v2
-nohup busco -m genome -i pb_279_falcon_step3_v2.fasta -o buscoOutput -l fungi_odb10 & #https://busco.ezlab.org/frames/fungi.html
+cd ~/LUfungiProject/pb-assembly/pb_279_v1
+nohup busco -m genome -i pb_279_falcon_step3_v1.fasta -o step3_busco -l fungi_odb10 & #https://busco.ezlab.org/frames/fungi.html
+cd ~/LUfungiProject/pb-assembly/pb_279_v2
+nohup busco -m genome -i pb_279_falcon_step3_v2.fasta -o step3_busco -l fungi_odb10 &
+cd ~/LUfungiProject/pb-assembly/pb_320-2_v1
+nohup busco -m genome -i pb_320-2_falcon_step3_v1.fasta -o step3_busco -l fungi_odb10 &
+cd ~/LUfungiProject/pb-assembly/pb_320-2_v2
+nohup busco -m genome -i pb_320-2_falcon_step3_v2.fasta -o step3_busco -l fungi_odb10 &
