@@ -162,6 +162,11 @@ nohup fc_run ../mycfgs/fc_pb_320-2_v2.cfg &> run0.log &
 nohup fc_unzip.py ../mycfgs/fc_unzip_pb_279.cfg &> run1.std &
 nohup fc_unzip.py ../mycfgs/fc_unzip_pb_320-2.cfg &> run1.std & 
 #However, though '3-unzip' step was successful, '4-polish' failed because of the same unsolved issue as what the link https://github.com/PacificBiosciences/FALCON_unzip/issues/159 addresses. I decided to concatenate the output primary-contig & the associate-contig output file of 2-asm and the primary-contig & the haplotype-contig output file of '3-unzip' step in order to compare them to the original assembly each. Thus, blasr and arrow will be used later to polish the concatenated output file of '3-unzip' step.
+# In order to save disk space, extract only .fa files out and delete the intermediate folders
+mv 2-asm-falcon/*.fa .
+mv 3-unzip/*.fa .
+find -maxdepth 1|grep \.\/[0-9].|while read dir;do rm -rf $dir;done
+#Generate .bam alignment files
 nohup blasr ../../bamfiles/pb_279_subreads.bam pb_279_falcon_step3_v2.fasta --bam --out pb_279_step3_v2_aligned.bam --nproc 20 &
 nohup blasr ../../bamfiles/pb_320-2_subreads.bam pb_320-2_falcon_step3_v2.fasta --bam --out pb_320-2_step3_v2_aligned.bam --nproc 20 & 
 # all these blasr commands terminated with only output files in .bam.tmp format. From msg in nohup.out, it seems that the unaligned .bam files which I generated above have problems. Nonetheless, I changed their suffix from .bam.tmp to .bam and went forward as an attempt.
@@ -209,7 +214,7 @@ cd ~/LUfungiProject/pb-assembly/pb_320-2_v2
 nohup busco -m genome -i pb_320-2_falcon_step3_v2.fasta -o step3_busco -l fungi_odb10 &
 # Do summary plotting for each busco analysis
 mkdir /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/busco_plots
-cd ~/LUfungiProject/pb-assembly/pb_?_v?
+cd ~/LUfungiProject/pb-assembly/pb_?_v?/step3_busco
 mkdir summaries
 cp short_summary.specific.fungi_odb10.step3_busco.txt summaries/
 nohup generate_plot.py -wd summaries/ &
