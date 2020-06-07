@@ -231,5 +231,16 @@ mv *_busco/ /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawe
 cd ~/LUfungiProject/OriginalAssemblies/
 nohup busco -m genome -i pb_279_Leuge.fasta -o pb_279_ref_busco -l fungi_odb10 &
 nohup busco -m genome -i pb_320-2_Mysco.fasta -o pb_320-2_ref_busco -l fungi_odb10 &
-
-
+# Do quast analysis for assemblies
+cd ~/LUfungiProject/pb-assembly/pb_279_v2
+nohup quast.py -o step2_v2_quast/  pb_279_falcon_step2_v2.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 &
+nohup quast.py -o step3_v2_quast/  pb_279_falcon_step3_v2.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 &
+cd ~/LUfungiProject/pb-assembly/pb_320-2_v2
+nohup quast.py -o step2_v2_quast/ pb_320-2_falcon_step2_v2.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
+nohup quast.py -o step3_v2_quast/ pb_320-2_falcon_step3_v2.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
+cd ~/LUfungiProject/pb-assembly/
+find -maxdepth 3 -name "report.pdf"|while read pdf;do dir=$(echo $pdf|cut -d / -f 1-3|sed -r 's/t$/t\//');newname=$(echo $dir|cut -d / -f 2-3|sed -r 's/v[0-9]_//'|tr / _);mv "$pdf" "$dir${newname}.pdf";done
+find -maxdepth 3 -name "*quast.pdf" #to check if pdf names are changed properly
+#copy my quast reports and .fasta assemblies to the specific subfolder of the shared folder
+find -maxdepth 3 -name "*quast.pdf"|while read pdf;do cp $pdf ../../../shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/pb-assembly/;done
+find -maxdepth 2 -name "pb*.fasta"|while read asm;do cp $asm ../../../shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/pb-assembly/;done
