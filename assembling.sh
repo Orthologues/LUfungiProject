@@ -192,12 +192,13 @@ ls ../../bamfiles/pb_279/*subreads.bam|while read bam;do echo $bam >> pb_279_bam
 nohup pbmm2 align pb_279_falcon_step3_v2.fasta pb_279_bam.fofn pb_279_v2_aligned.bam --sort -j 8 -J 8 -m 32G --preset SUBREAD & #pbmm2 succeeds this time
 nohup samtools faidx pb_279_falcon_step3_v2.fasta -o pb_279_falcon_step3_v2.fasta.fai &
 nohup pbindex pb_279_v2_aligned_sorted.bam &
-nohup arrow pb_279_v2_aligned_sorted.bam -r pb_279_falcon_step3_v2.fasta -o pb_279_step3_v2_polished.fasta -o pb_279_step3_v2_polished.fastq -j 20 -pdb --diploid &
+nohup arrow pb_279_v2_aligned.bam -r pb_279_falcon_step3_v2.fasta -o pb_279_step3_v2_polished.fasta -o pb_279_step3_v2_polished.fastq -j 20 -pdb --diploid &
 cd ~/LUfungiProject/pb-assembly/pb_320-2_v2
 ls ../../bamfiles/pb_320-2/*subreads.bam|while read bam;do echo $bam >> pb_320-2_bam.fofn;done
 nohup pbmm2 align pb_320-2_falcon_step3_v2.fasta pb_320-2_bam.fofn pb_320-2_v2_aligned.bam --sort -j 8 -J 8 -m 32G --preset SUBREAD &
 nohup samtools faidx pb_320-2_falcon_step3_v2.fasta -o pb_320-2_falcon_step3_v2.fasta.fai &
-nohup arrow pb_320-2_v2_aligned_sorted.bam -r pb_320-2_falcon_step3_v2.fasta -o pb_320-2_step3_v2_polished.fasta -o pb_320-2_step3_v2_polished.fastq -j 20 -pdb --diploid &
+nohup pbindex pb_279_v2_aligned_sorted.bam &
+nohup arrow pb_320-2_v2_aligned.bam -r pb_320-2_falcon_step3_v2.fasta -o pb_320-2_step3_v2_polished.fasta -o pb_320-2_step3_v2_polished.fastq -j 20 -pdb --diploid &
 
 # Install busco and do busco analysis instead
 conda create -n your_env_name -c bioconda -c conda-forge busco=4.0.6 python=3.7
