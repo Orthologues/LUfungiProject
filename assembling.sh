@@ -219,5 +219,11 @@ mkdir summaries
 cp short_summary.specific.fungi_odb10.step3_busco.txt summaries/
 nohup generate_plot.py -wd summaries/ &
 cp summaries/*.png /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/busco_plots
-
-
+# Generalize the busco-plotting pipeline
+cd ~/LUfungiProject/pb-assembly/
+mkdir busco_plots
+cd busco_plots
+ls ../*/step*_busco/*.txt|while read txt;do name=$(echo $txt|cut -d / -f 2-3|tr -d \/|sed 's/step/_step/');echo $name;mkdir $name;cp $txt $name;done
+nohup sh -c 'ls *busco/|grep ^p|sed 's/://'|while read dir;do nohup generate_plot.py -wd $dir;done' &
+rm *.log
+mv *_busco/ /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/busco_plots/
