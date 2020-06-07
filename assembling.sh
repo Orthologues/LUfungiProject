@@ -244,3 +244,7 @@ find -maxdepth 3 -name "*quast.pdf" #to check if pdf names are changed properly
 #copy my quast reports and .fasta assemblies to the specific subfolder of the shared folder
 find -maxdepth 3 -name "*quast.pdf"|while read pdf;do cp $pdf ../../../shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/pb-assembly/;done
 find -maxdepth 2 -name "pb*.fasta"|while read asm;do cp $asm ../../../shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/pb-assembly/;done
+# Run busco analysis for my previous assemblies
+cd /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies
+nohup find -mindepth 3 -name "*.gfa"|while read gfa;do name=$(echo $gfa|sed 's/.gfa//'|cut -d / -f 4);path=$(echo $gfa|cut -d / -f 1-3);awk -v gfa="$gfa" -v name="$name" -v path="$path"  '/^S/{print ">"$2"\n"$3}' $gfa > ${path}/${name}.fasta;done & #convert .gfa files to .fasta files
+
