@@ -205,25 +205,33 @@ nohup cat pb_320-2_step3_v2_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{pri
 
 #create a more automated analysis workflow for assembly polishing
 cd ~/LUfungiProject/pb-assembly/
-versions=$(($(find -maxdepth 1 -name "pb*v*"|wc -l)/2));
-for ((i=1;i<=$versions;i++))
+versions1=$(find -maxdepth 1 -name "pb_279_v*"|wc -l);
+versions2=$(find -maxdepth 1 -name "pb_320-2_v*"|wc -l);
+for ((i=1;i<=$versions1;i++))
 do
-   cd ~/LUfungiProject/pb-assembly/pb_279_v${i}
-   nohup pbmm2 align pb_279_falcon_step3_v${i}.fasta pb_279_bam.fofn pb_279_v${i}_aligned.bam --sort -j 8 -J 8 -m 32G --preset SUBREAD & 
-   nohup samtools faidx pb_279_falcon_step3_v${i}.fasta -o pb_279_falcon_step3_v${i}.fasta.fai &
-   nohup pbindex pb_279_v${i}_aligned.bam &
-   nohup arrow pb_279_v${i}_aligned.bam -r pb_279_falcon_step3_v${i}.fasta -o pb_279_step3_v${i}_polished.fastq -j 20 --diploid &
-   nohup cat pb_279_step3_v${i}_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_279_step3_v${i}_polished.fasta &
-done
-for ((i=1;i<=$versions;i++))
+( cd ~/LUfungiProject/pb-assembly/pb_279_v${i}
+  nohup pbmm2 align pb_279_falcon_step3_v${i}.fasta pb_279_bam.fofn pb_279_v${i}_aligned.bam --sort -j 8 -J 8 -m 32G --preset SUBREAD & 
+  nohup samtools faidx pb_279_falcon_step3_v${i}.fasta -o pb_279_falcon_step3_v${i}.fasta.fai &
+  wait
+  nohup pbindex pb_279_v${i}_aligned.bam &
+  wait
+  nohup arrow pb_279_v${i}_aligned.bam -r pb_279_falcon_step3_v${i}.fasta -o pb_279_step3_v${i}_polished.fastq -j 20 --diploid &
+  wait
+  nohup cat pb_279_step3_v${i}_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_279_step3_v${i}_polished.fasta & ) &
+done &
+for ((k=1;k<=$versions2;k++))
 do
-   cd ~/LUfungiProject/pb-assembly/pb_320-2_v${i}
-   nohup pbmm2 align pb_320-2_falcon_step3_v${i}.fasta pb_320-2_bam.fofn pb_320-2_v${i}_aligned.bam --sort -j 8 -J 8 -m 32G --preset SUBREAD & 
-   nohup samtools faidx pb_320-2_falcon_step3_v${i}.fasta -o pb_320-2_falcon_step3_v${i}.fasta.fai &
-   nohup pbindex pb_320-2_v${i}_aligned.bam &
-   nohup arrow pb_320-2_v${i}_aligned.bam -r pb_320-2_falcon_step3_v${i}.fasta -o pb_320-2_step3_v${i}_polished.fastq -j 20 --diploid &
-   nohup cat pb_320-2_step3_v${i}_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_320-2_step3_v${i}_polished.fasta &
-done
+( cd ~/LUfungiProject/pb-assembly/pb_320-2_v${k}
+  nohup pbmm2 align pb_320-2_falcon_step3_v${k}.fasta pb_320-2_bam.fofn pb_320-2_v${k}_aligned.bam --sort -j 8 -J 8 -m 32G --preset SUBREAD & 
+  nohup samtools faidx pb_320-2_falcon_step3_v${k}.fasta -o pb_320-2_falcon_step3_v${k}.fasta.fai &
+  wait
+  nohup pbindex pb_320-2_v${k}_aligned.bam &
+  wait
+  nohup arrow pb_320-2_v${k}_aligned.bam -r pb_320-2_falcon_step3_v${k}.fasta -o pb_320-2_step3_v${k}_polished.fastq -j 20 --diploid &
+  wait
+  nohup cat pb_320-2_step3_v${k}_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_320-2_step3_v${k}_polished.fasta & ) &
+done &
+wait
 
 # Install busco and do busco analysis instead
 conda create -n your_env_name -c bioconda -c conda-forge busco=4.0.6 python=3.7
@@ -245,20 +253,43 @@ nohup generate_plot.py -wd summaries/ &
 cp summaries/*.png /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/busco_plots
 
 #create a more automated analysis workflow for busco analysis
-
+cd ~/LUfungiProject/pb-assembly/
+conda create -n busco -c bioconda -c conda-forge busco=4.0.6 python=3.7
+conda deactivate
+conda activate busco
+versions1=$(find -maxdepth 1 -name "pb_279_v*"|wc -l);
+versions2=$(find -maxdepth 1 -name "pb_320-2_v*"|wc -l);
+for ((i=1;i<=$versions1;i++))
+do
+( cd ~/LUfungiProject/pb-assembly/pb_279_v${i}
+  nohup busco -m genome -i pb_279_falcon_step2_v${i}.fasta -o step2_busco -l fungi_odb10 & 
+  nohup busco -m genome -i pb_279_falcon_step3_v${i}.fasta -o step3_busco -l fungi_odb10 & 
+  nohup busco -m genome -i pb_279_step3_v${i}_polished.fasta -o step4_busco -l fungi_odb10 & ) &
+done &
+for ((k=1;k<=$versions2;k++))
+do
+( cd ~/LUfungiProject/pb-assembly/pb_320-2_v${k}
+  nohup busco -m genome -i pb_320-2_falcon_step2_v${k}.fasta -o step2_busco -l fungi_odb10 & 
+  nohup busco -m genome -i pb_320-2_falcon_step3_v${k}.fasta -o step3_busco -l fungi_odb10 & 
+  nohup busco -m genome -i pb_320-2_step3_v${k}_polished.fasta -o step4_busco -l fungi_odb10 & ) & 
+done &
+wait
 # Generalize the busco-plotting pipeline
 cd ~/LUfungiProject/pb-assembly/
 mkdir busco_plots
 cd busco_plots
 ls ../*/step*_busco/*.txt|while read txt;do name=$(echo $txt|cut -d / -f 2-3|tr -d \/|sed 's/step/_step/');echo $name;mkdir $name;cp $txt $name;done
-nohup sh -c 'ls *busco/|grep ^p|sed 's/://'|while read dir;do nohup generate_plot.py -wd $dir;done' &
+nohup sh -c 'ls *busco/|grep ^pb|sed 's/://'|while read dir;do nohup generate_plot.py -wd $dir;done' &
+wait
 rm *.log
 mv *_busco/ /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/busco_plots/
 # Run busco analysis for the reference genomes
 cd ~/LUfungiProject/OriginalAssemblies/
 nohup busco -m genome -i pb_279_Leuge.fasta -o pb_279_ref_busco -l fungi_odb10 &
 nohup busco -m genome -i pb_320-2_Mysco.fasta -o pb_320-2_ref_busco -l fungi_odb10 &
+wait
 find -maxdepth 2 -name "*busco.txt"|while read txt;do dir=$(echo $txt|cut -d / -f 1-2);mkdir ${dir}/summary;mv $txt ${dir}/summary;nohup generate_plot.py -wd ${dir}/summary/;done &
+wait
 find -name "*summary"|while read dir;do name=$(echo $dir|cut -d / -f 2);pardir=$(echo $dir|cut -d / -f 1-2);newname=$(echo ${pardir}/$name);mv $dir $newname;done
 mv */*_busco/ /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/busco_plots/
 
@@ -270,15 +301,36 @@ cd ~/LUfungiProject/pb-assembly/pb_320-2_v2
 nohup quast.py -o step2_v2_quast/ pb_320-2_falcon_step2_v2.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
 nohup quast.py -o step3_v2_quast/ pb_320-2_falcon_step3_v2.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
 
-#create a more automated analysis workflow for quast analysis
-
+#Create a more automated analysis workflow for quast analysis
+cd ~/LUfungiProject/pb-assembly/
+conda deactivate
+conda activate py2
+versions1=$(find -maxdepth 1 -name "pb_279_v*"|wc -l);
+versions2=$(find -maxdepth 1 -name "pb_320-2_v*"|wc -l);
+for ((i=1;i<=$versions1;i++))
+do
+( cd ~/LUfungiProject/pb-assembly/pb_279_v${i}
+  nohup quast.py -o step2_v${i}_quast/  pb_279_falcon_step2_v${i}.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 &
+  nohup quast.py -o step3_v${i}_quast/  pb_279_falcon_step3_v${i}.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 &
+  nohup quast.py -o step4_v${i}_quast/  pb_279_step3_v${i}_polished.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 &
+done &
+for ((k=1;k<=$versions2;k++))
+do
+( cd ~/LUfungiProject/pb-assembly/pb_320-2_v${k}
+  nohup quast.py -o step2_v${k}_quast/ pb_320-2_falcon_step2_v${k}.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
+  nohup quast.py -o step3_v${k}_quast/ pb_320-2_falcon_step3_v${k}.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
+  nohup quast.py -o step4_v${k}_quast/ pb_320-2_step3_v${k}_polished.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
+done &
+wait
+# Send my falcon assemblies and quast reports to the shared folder
 cd ~/LUfungiProject/pb-assembly/
 find -maxdepth 3 -name "report.pdf"|while read pdf;do dir=$(echo $pdf|cut -d / -f 1-3|sed -r 's/t$/t\//');newname=$(echo $dir|cut -d / -f 2-3|sed -r 's/v[0-9]_//'|tr / _);mv "$pdf" "$dir${newname}.pdf";done
 find -maxdepth 3 -name "*quast.pdf" #to check if pdf names are changed properly
 #copy my quast reports and .fasta assemblies to the specific subfolder of the shared folder
 find -maxdepth 3 -name "*quast.pdf"|while read pdf;do cp $pdf ../../../shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/pb-assembly/;done
 find -maxdepth 2 -name "pb*.fasta"|while read asm;do cp $asm ../../../shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/pb-assembly/;done
+
 # Run busco analysis for my previous assemblies
 cd /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies
 nohup find -mindepth 3 -name "*.gfa"|while read gfa;do name=$(echo $gfa|sed 's/.gfa//'|cut -d / -f 4);path=$(echo $gfa|cut -d / -f 1-3);awk -v gfa="$gfa" -v name="$name" -v path="$path"  '/^S/{print ">"$2"\n"$3}' $gfa > ${path}/${name}.fasta;done & #convert .gfa files to .fasta files
-
+wait
