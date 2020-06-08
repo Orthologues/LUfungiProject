@@ -312,14 +312,14 @@ do
 ( cd ~/LUfungiProject/pb-assembly/pb_279_v${i}
   nohup quast.py -o step2_v${i}_quast/  pb_279_falcon_step2_v${i}.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 &
   nohup quast.py -o step3_v${i}_quast/  pb_279_falcon_step3_v${i}.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 &
-  nohup quast.py -o step4_v${i}_quast/  pb_279_step3_v${i}_polished.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 &
+  nohup quast.py -o step4_v${i}_quast/  pb_279_step3_v${i}_polished.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 & ) &
 done &
 for ((k=1;k<=$versions2;k++))
 do
 ( cd ~/LUfungiProject/pb-assembly/pb_320-2_v${k}
   nohup quast.py -o step2_v${k}_quast/ pb_320-2_falcon_step2_v${k}.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
   nohup quast.py -o step3_v${k}_quast/ pb_320-2_falcon_step3_v${k}.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
-  nohup quast.py -o step4_v${k}_quast/ pb_320-2_step3_v${k}_polished.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
+  nohup quast.py -o step4_v${k}_quast/ pb_320-2_step3_v${k}_polished.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 & ) &
 done &
 wait
 # Send my falcon assemblies and quast reports to the shared folder
