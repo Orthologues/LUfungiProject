@@ -203,6 +203,26 @@ nohup pbindex pb_320-2_v2_aligned.bam &
 nohup arrow pb_320-2_v2_aligned.bam -r pb_320-2_falcon_step3_v2.fasta -o pb_320-2_step3_v2_polished.fastq -j 20 --diploid &
 nohup cat pb_320-2_step3_v2_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_320-2_step3_v2_polished.fasta &
 
+#create a more automative analysis workflow for assembly polishing
+cd ~/LUfungiProject/pb-assembly/
+versions=$(($(find -maxdepth 1 -name "pb*v*"|wc -l)/2));
+for ((i=1;i<=$versions;i++))
+do
+	 nohup pbmm2 align pb_279_falcon_step3_v${i}.fasta pb_279_bam.fofn pb_279_v${i}_aligned.bam --sort -j 8 -J 8 -m 32G --preset SUBREAD & 
+   nohup samtools faidx pb_279_falcon_step3_v${i}.fasta -o pb_279_falcon_step3_v${i}.fasta.fai &
+   nohup pbindex pb_279_v${i}_aligned.bam &
+   nohup arrow pb_279_v${i}_aligned.bam -r pb_279_falcon_step3_v${i}.fasta -o pb_279_step3_v${i}_polished.fastq -j 20 --diploid &
+   nohup cat pb_279_step3_v${i}_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_279_step3_v${i}_polished.fasta &
+done
+for ((i=1;i<=$versions;i++))
+do
+   nohup pbmm2 align pb_320-2_falcon_step3_v${i}.fasta pb_320-2_bam.fofn pb_320-2_v${i}_aligned.bam --sort -j 8 -J 8 -m 32G --preset SUBREAD & 
+   nohup samtools faidx pb_320-2_falcon_step3_v${i}.fasta -o pb_320-2_falcon_step3_v${i}.fasta.fai &
+   nohup pbindex pb_320-2_v${i}_aligned.bam &
+   nohup arrow pb_320-2_v${i}_aligned.bam -r pb_320-2_falcon_step3_v${i}.fasta -o pb_320-2_step3_v${i}_polished.fastq -j 20 --diploid &
+   nohup cat pb_320-2_step3_v${i}_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_320-2_step3_v${i}_polished.fasta &
+done
+
 # Install busco and do busco analysis instead
 conda create -n your_env_name -c bioconda -c conda-forge busco=4.0.6 python=3.7
 conda activate busco
