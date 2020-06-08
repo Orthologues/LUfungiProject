@@ -203,11 +203,12 @@ nohup pbindex pb_320-2_v2_aligned.bam &
 nohup arrow pb_320-2_v2_aligned.bam -r pb_320-2_falcon_step3_v2.fasta -o pb_320-2_step3_v2_polished.fastq -j 20 --diploid &
 nohup cat pb_320-2_step3_v2_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_320-2_step3_v2_polished.fasta &
 
-#create a more automative analysis workflow for assembly polishing
+#create a more automated analysis workflow for assembly polishing
 cd ~/LUfungiProject/pb-assembly/
 versions=$(($(find -maxdepth 1 -name "pb*v*"|wc -l)/2));
 for ((i=1;i<=$versions;i++))
 do
+   cd ~/LUfungiProject/pb-assembly/pb_279_v${i}
    nohup pbmm2 align pb_279_falcon_step3_v${i}.fasta pb_279_bam.fofn pb_279_v${i}_aligned.bam --sort -j 8 -J 8 -m 32G --preset SUBREAD & 
    nohup samtools faidx pb_279_falcon_step3_v${i}.fasta -o pb_279_falcon_step3_v${i}.fasta.fai &
    nohup pbindex pb_279_v${i}_aligned.bam &
@@ -216,6 +217,7 @@ do
 done
 for ((i=1;i<=$versions;i++))
 do
+   cd ~/LUfungiProject/pb-assembly/pb_320-2_v${i}
    nohup pbmm2 align pb_320-2_falcon_step3_v${i}.fasta pb_320-2_bam.fofn pb_320-2_v${i}_aligned.bam --sort -j 8 -J 8 -m 32G --preset SUBREAD & 
    nohup samtools faidx pb_320-2_falcon_step3_v${i}.fasta -o pb_320-2_falcon_step3_v${i}.fasta.fai &
    nohup pbindex pb_320-2_v${i}_aligned.bam &
@@ -241,6 +243,9 @@ mkdir summaries
 cp short_summary.specific.fungi_odb10.step3_busco.txt summaries/
 nohup generate_plot.py -wd summaries/ &
 cp summaries/*.png /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/busco_plots
+
+#create a more automated analysis workflow for busco analysis
+
 # Generalize the busco-plotting pipeline
 cd ~/LUfungiProject/pb-assembly/
 mkdir busco_plots
@@ -256,6 +261,7 @@ nohup busco -m genome -i pb_320-2_Mysco.fasta -o pb_320-2_ref_busco -l fungi_odb
 find -maxdepth 2 -name "*busco.txt"|while read txt;do dir=$(echo $txt|cut -d / -f 1-2);mkdir ${dir}/summary;mv $txt ${dir}/summary;nohup generate_plot.py -wd ${dir}/summary/;done &
 find -name "*summary"|while read dir;do name=$(echo $dir|cut -d / -f 2);pardir=$(echo $dir|cut -d / -f 1-2);newname=$(echo ${pardir}/$name);mv $dir $newname;done
 mv */*_busco/ /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/busco_plots/
+
 # Do quast analysis for assemblies
 cd ~/LUfungiProject/pb-assembly/pb_279_v2
 nohup quast.py -o step2_v2_quast/  pb_279_falcon_step2_v2.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 &
@@ -263,6 +269,9 @@ nohup quast.py -o step3_v2_quast/  pb_279_falcon_step3_v2.fasta -r ../../Origina
 cd ~/LUfungiProject/pb-assembly/pb_320-2_v2
 nohup quast.py -o step2_v2_quast/ pb_320-2_falcon_step2_v2.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
 nohup quast.py -o step3_v2_quast/ pb_320-2_falcon_step3_v2.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
+
+#create a more automated analysis workflow for quast analysis
+
 cd ~/LUfungiProject/pb-assembly/
 find -maxdepth 3 -name "report.pdf"|while read pdf;do dir=$(echo $pdf|cut -d / -f 1-3|sed -r 's/t$/t\//');newname=$(echo $dir|cut -d / -f 2-3|sed -r 's/v[0-9]_//'|tr / _);mv "$pdf" "$dir${newname}.pdf";done
 find -maxdepth 3 -name "*quast.pdf" #to check if pdf names are changed properly
