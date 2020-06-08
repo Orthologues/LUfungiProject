@@ -208,7 +208,7 @@ cd ~/LUfungiProject/pb-assembly/
 versions=$(($(find -maxdepth 1 -name "pb*v*"|wc -l)/2));
 for ((i=1;i<=$versions;i++))
 do
-	 nohup pbmm2 align pb_279_falcon_step3_v${i}.fasta pb_279_bam.fofn pb_279_v${i}_aligned.bam --sort -j 8 -J 8 -m 32G --preset SUBREAD & 
+   nohup pbmm2 align pb_279_falcon_step3_v${i}.fasta pb_279_bam.fofn pb_279_v${i}_aligned.bam --sort -j 8 -J 8 -m 32G --preset SUBREAD & 
    nohup samtools faidx pb_279_falcon_step3_v${i}.fasta -o pb_279_falcon_step3_v${i}.fasta.fai &
    nohup pbindex pb_279_v${i}_aligned.bam &
    nohup arrow pb_279_v${i}_aligned.bam -r pb_279_falcon_step3_v${i}.fasta -o pb_279_step3_v${i}_polished.fastq -j 20 --diploid &
