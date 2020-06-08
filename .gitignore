@@ -20,4 +20,4 @@ pb_320-2_filtered_subreads.fasta
 bamfiles
 pb-assembly/*
 !pb-assembly/mycfgs
-test0.sh
+test1.sh
