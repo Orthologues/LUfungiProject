@@ -231,6 +231,9 @@ mv *_busco/ /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawe
 cd ~/LUfungiProject/OriginalAssemblies/
 nohup busco -m genome -i pb_279_Leuge.fasta -o pb_279_ref_busco -l fungi_odb10 &
 nohup busco -m genome -i pb_320-2_Mysco.fasta -o pb_320-2_ref_busco -l fungi_odb10 &
+find -maxdepth 2 -name "*busco.txt"|while read txt;do dir=$(echo $txt|cut -d / -f 1-2);mkdir ${dir}/summary;mv $txt ${dir}/summary;nohup generate_plot.py -wd ${dir}/summary/;done &
+find -name "*summary"|while read dir;do name=$(echo $dir|cut -d / -f 2);pardir=$(echo $dir|cut -d / -f 1-2);newname=$(echo ${pardir}/$name);mv $dir $newname;done
+mv */*_busco/ /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/busco_plots/
 # Do quast analysis for assemblies
 cd ~/LUfungiProject/pb-assembly/pb_279_v2
 nohup quast.py -o step2_v2_quast/  pb_279_falcon_step2_v2.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 &
