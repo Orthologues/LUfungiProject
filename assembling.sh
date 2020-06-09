@@ -119,6 +119,7 @@ ln -s ../../../../shared_bioinformatics_master_projects/agaricalesGenomes/genome
 mv "all.log" "all0.log"
 nohup fc_unzip.py ../mycfgs/fc_unzip_pb_279.cfg &> run1.std &
 nohup fc_unzip.py ../mycfgs/fc_unzip_pb_320-2.cfg &> run1.std & 
+wait
 #However, though '3-unzip' step was successful, '4-polish' failed because of the same unsolved issue as what the link https://github.com/PacificBiosciences/FALCON_unzip/issues/159 addresses. I decided to concatenate the output primary-contig & the associate-contig output file of 2-asm and the primary-contig & the haplotype-contig output file of '3-unzip' step in order to compare them to the original assembly each. Thus, blasr and arrow will be used later to polish the concatenated output file of '3-unzip' step.
 cat 2-asm-falcon/p_ctg.fasta 2-asm-falcon/a_ctg.fasta > pb_320-2_falcon_step2_v1.fasta
 cat 3-unzip/all_p_ctg.fasta 3-unzip/all_h_ctg.fasta >pb_320-2_falcon_step3_v1.fasta
@@ -131,6 +132,7 @@ nohup quast.py -o step2_v1_quast/  pb_279_falcon_step2_v1.fasta -r ../../Origina
 nohup quast.py -o step3_v1_quast/  pb_279_falcon_step3_v1.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 &
 nohup quast.py -o step2_v1_quast/ pb_320-2_falcon_step2_v1.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
 nohup quast.py -o step3_v1_quast/ pb_320-2_falcon_step3_v1.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
+wait
 find -maxdepth 3 -name "*.pdf"|while read pdf;do cp $pdf ../../../shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/pb-assembly/;done
 #run blasr to generate aligned .bam files
 cd ~/LUfungiProject/pb-assembly/pb_279_v1
@@ -159,8 +161,10 @@ conda install -c bioconda samtools=1.9 --force-reinstall #https://github.com/bio
 #Change parameters to v2 and run falcon-assembler again
 nohup fc_run ../mycfgs/fc_pb_279_v2.cfg &> run0.log &
 nohup fc_run ../mycfgs/fc_pb_320-2_v2.cfg &> run0.log &
+wait
 nohup fc_unzip.py ../mycfgs/fc_unzip_pb_279.cfg &> run1.std &
 nohup fc_unzip.py ../mycfgs/fc_unzip_pb_320-2.cfg &> run1.std & 
+wait
 #However, though '3-unzip' step was successful, '4-polish' failed because of the same unsolved issue as what the link https://github.com/PacificBiosciences/FALCON_unzip/issues/159 addresses. I decided to concatenate the output primary-contig & the associate-contig output file of 2-asm and the primary-contig & the haplotype-contig output file of '3-unzip' step in order to compare them to the original assembly each. Thus, blasr and arrow will be used later to polish the concatenated output file of '3-unzip' step.
 # In order to save disk space, extract only .fa files out and delete the intermediate folders
 mv 2-asm-falcon/*.fa .
@@ -329,4 +333,4 @@ find -maxdepth 2 -name "pb*.fasta"|while read asm;do cp $asm ../../../shared_bio
 # Run busco analysis for my previous assemblies
 cd /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies
 find -mindepth 3 -name "*.gfa"|while read gfa;do name=$(echo $gfa|sed 's/.gfa//'|cut -d / -f 4);path=$(echo $gfa|cut -d / -f 1-3);nohup awk -v gfa="$gfa" -v name="$name" -v path="$path"  '/^S/{print ">"$2"\n"$3}' $gfa > ${path}/${name}.fasta;done #convert .gfa files to .fasta files
-find -mindepth 3 -name "*.fasta"|while read fa;do (dir=$(echo $fa|cut -d / -f 1-3);fa=$(echo $fa|cut -d / -f 4);cd $dir;nohup busco -m genome -i $fa -o analysis_busco -l fungi_odb10 &) & done
+find -mindepth 3 -name "*.fasta"|while read fa;do (dir=$(echo $fa|cut -d / -f 1-3);fa=$(echo $fa|cut -d / -f 4);name=$(echo $fa|cut -d . -f 1);cd $dir;nohup busco -m genome -i $fa -o ${name}_busco -l fungi_odb10 &) & done
