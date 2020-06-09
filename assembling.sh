@@ -184,6 +184,7 @@ nohup arrow pb_320-2_step3_v2_aligned.bam -r pb_320-2_falcon_step3_v2.fasta -o p
 cd ~/LUfungiProject/
 nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_279_list/pb_279_bax_list${i}.txt -o bamfiles/pb_279/${i} --subread --allowUnrecognizedChemistryTriple;done' &
 nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_320-2_list/pb_320-2_bax_list${i}.txt -o bamfiles/pb_320-2/${i} --subread --allowUnrecognizedChemistryTriple;done' &
+wait
 cd ~/LUfungiProject/pb-assembly/
 rm pb_279_bam.fofn
 rm pb_320-2_bam.fofn
@@ -193,8 +194,8 @@ ls ../../bamfiles/pb_279/*subreads.bam|while read bam;do echo $bam >> pb_279_bam
 nohup pbmm2 align pb_279_falcon_step3_v2.fasta pb_279_bam.fofn pb_279_v2_aligned.bam --sort -j 8 -J 8 -m 32G --preset SUBREAD & #pbmm2 succeeds this time
 nohup samtools faidx pb_279_falcon_step3_v2.fasta -o pb_279_falcon_step3_v2.fasta.fai &
 nohup pbindex pb_279_v2_aligned.bam &
-nohup arrow pb_279_v2_aligned.bam -r pb_279_falcon_step3_v2.fasta -o pb_279_step3_v2_polished.fastq -j 20 --diploid &
-nohup cat pb_279_step3_v2_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_279_step3_v2_polished.fasta &
+nohup arrow pb_279_v2_aligned.bam -r pb_279_falcon_step3_v2.fasta -o pb_279_step3_v2_polished.fastq -j 20 --diploid & wait
+nohup cat pb_279_step3_v2_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_279_step3_v2_polished.fasta & wait
 cd ~/LUfungiProject/pb-assembly/pb_320-2_v2
 ls ../../bamfiles/pb_320-2/*subreads.bam|while read bam;do echo $bam >> pb_320-2_bam.fofn;done
 nohup pbmm2 align pb_320-2_falcon_step3_v2.fasta pb_320-2_bam.fofn pb_320-2_v2_aligned.bam --sort -j 8 -J 8 -m 32G --preset SUBREAD &
@@ -277,8 +278,7 @@ cd ~/LUfungiProject/pb-assembly/
 mkdir busco_plots
 cd busco_plots
 ls ../*/step*_busco/*.txt|while read txt;do name=$(echo $txt|cut -d / -f 2-3|tr -d \/|sed 's/step/_step/');echo $name;mkdir $name;cp $txt $name;done
-nohup sh -c 'ls *busco/|grep ^pb|sed 's/://'|while read dir;do nohup generate_plot.py -wd $dir;done' &
-wait
+nohup sh -c 'ls *busco/|grep ^pb|sed 's/://'|while read dir;do nohup generate_plot.py -wd $dir;done' & wait
 rm *.log
 mv *_busco/ /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/busco_plots/
 # Run busco analysis for the reference genomes
@@ -328,5 +328,5 @@ find -maxdepth 2 -name "pb*.fasta"|while read asm;do cp $asm ../../../shared_bio
 
 # Run busco analysis for my previous assemblies
 cd /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies
-nohup find -mindepth 3 -name "*.gfa"|while read gfa;do name=$(echo $gfa|sed 's/.gfa//'|cut -d / -f 4);path=$(echo $gfa|cut -d / -f 1-3);awk -v gfa="$gfa" -v name="$name" -v path="$path"  '/^S/{print ">"$2"\n"$3}' $gfa > ${path}/${name}.fasta;done #convert .gfa files to .fasta files
+find -mindepth 3 -name "*.gfa"|while read gfa;do name=$(echo $gfa|sed 's/.gfa//'|cut -d / -f 4);path=$(echo $gfa|cut -d / -f 1-3);nohup awk -v gfa="$gfa" -v name="$name" -v path="$path"  '/^S/{print ">"$2"\n"$3}' $gfa > ${path}/${name}.fasta;done #convert .gfa files to .fasta files
 find -mindepth 3 -name "*.fasta"|while read fa;do (dir=$(echo $fa|cut -d / -f 1-3);fa=$(echo $fa|cut -d / -f 4);cd $dir;nohup busco -m genome -i $fa -o analysis_busco -l fungi_odb10 &) & done
