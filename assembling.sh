@@ -336,6 +336,8 @@ find -mindepth 3 -name "*.gfa"|while read gfa;do name=$(echo $gfa|sed 's/.gfa//'
 find -mindepth 3 -name "*.fasta"|while read fa;do (dir=$(echo $fa|cut -d / -f 1-3);fa=$(echo $fa|cut -d / -f 4);name=$(echo $fa|cut -d . -f 1);cd $dir;nohup busco -m genome -i $fa -o ${name}_busco -l fungi_odb10 &) & done
 # Create a parallel version of quast analysis of the non-falcon assemblies
 cd /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies
-mkdir quast
+mkdir quast_279
+mkdir quast_320-2
 find -mindepth 3 -name "*279*.fasta"|while read fa;do (dir=$(echo $fa|cut -d / -f 1-3);fasta=$(echo $fa|cut -d / -f 4);name=$(echo $fasta|cut -d . -f 1);nohup quast.py -o quast/${name}/ $fa -r ~/LUfungiProject/OriginalAssemblies/pb_279_Leuge.fasta -t 20)& done
+find -mindepth 3 -name "*320-2*.fasta"|while read fa;do (dir=$(echo $fa|cut -d / -f 1-3);fasta=$(echo $fa|cut -d / -f 4);name=$(echo $fasta|cut -d . -f 1);nohup quast.py -o quast/${name}/ $fa -r ~/LUfungiProject/OriginalAssemblies/pb_320-2_Mysco.fasta -t 20)& done
 
