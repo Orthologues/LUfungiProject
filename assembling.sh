@@ -209,6 +209,7 @@ nohup arrow pb_320-2_v2_aligned.bam -r pb_320-2_falcon_step3_v2.fasta -o pb_320-
 nohup cat pb_320-2_step3_v2_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_320-2_step3_v2_polished.fasta &
 
 #create a more automated analysis workflow for assembly polishing
+touch ~/LUfungiProject/countDone.txt
 cd ~/LUfungiProject/pb-assembly/
 versions1=$(find -maxdepth 1 -name "pb_279_v*"|wc -l);
 versions2=$(find -maxdepth 1 -name "pb_320-2_v*"|wc -l);
@@ -222,7 +223,9 @@ do
   wait
   nohup arrow pb_279_v${i}_aligned.bam -r pb_279_falcon_step3_v${i}.fasta -o pb_279_step3_v${i}_polished.fastq -j 20 --diploid &
   wait
-  nohup cat pb_279_step3_v${i}_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_279_step3_v${i}_polished.fasta & ) &
+  nohup cat pb_279_step3_v${i}_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_279_step3_v${i}_polished.fasta &  
+  wait
+  echo "Done" >> countDone.txt ) & 
 done 
 for ((k=1;k<=$versions2;k++))
 do
@@ -234,8 +237,19 @@ do
   wait
   nohup arrow pb_320-2_v${k}_aligned.bam -r pb_320-2_falcon_step3_v${k}.fasta -o pb_320-2_step3_v${k}_polished.fastq -j 20 --diploid &
   wait
-  nohup cat pb_320-2_step3_v${k}_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_320-2_step3_v${k}_polished.fasta & ) &
+  nohup cat pb_320-2_step3_v${k}_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_320-2_step3_v${k}_polished.fasta & 
+  wait 
+  echo "Done" >> countDone.txt ) &
 done 
+cd ~/LUfungiProject/
+sum=$(($versions1+$versions2))
+count=$(cat countDone.txt|wc -l)
+while [ ! "$count" == "$sum" ]
+do 
+  sleep 10
+  count=$(cat countDone.txt|wc -l)
+done
+rm ~/LUfungiProject/countDone.txt
 
 # Install busco and do busco analysis instead
 conda create -n your_env_name -c bioconda -c conda-forge busco=4.0.6 python=3.7
@@ -257,6 +271,7 @@ nohup generate_plot.py -wd summaries/ &
 cp summaries/*.png /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/busco_plots
 
 #create a more automated analysis workflow for busco analysis
+touch ~/LUfungiProject/countDone.txt
 cd ~/LUfungiProject/pb-assembly/
 conda create -n busco -c bioconda -c conda-forge busco=4.0.6 python=3.7
 conda deactivate
@@ -268,15 +283,29 @@ do
 ( cd ~/LUfungiProject/pb-assembly/pb_279_v${i}
   nohup busco -m genome -i pb_279_falcon_step2_v${i}.fasta -o step2_busco -l fungi_odb10 & 
   nohup busco -m genome -i pb_279_falcon_step3_v${i}.fasta -o step3_busco -l fungi_odb10 & 
-  nohup busco -m genome -i pb_279_step3_v${i}_polished.fasta -o step4_busco -l fungi_odb10 & ) &
+  nohup busco -m genome -i pb_279_step3_v${i}_polished.fasta -o step4_busco -l fungi_odb10 & 
+  wait
+  echo "Done" >> countDone.txt ) &
 done 
 for ((k=1;k<=$versions2;k++))
 do
 ( cd ~/LUfungiProject/pb-assembly/pb_320-2_v${k}
   nohup busco -m genome -i pb_320-2_falcon_step2_v${k}.fasta -o step2_busco -l fungi_odb10 & 
   nohup busco -m genome -i pb_320-2_falcon_step3_v${k}.fasta -o step3_busco -l fungi_odb10 & 
-  nohup busco -m genome -i pb_320-2_step3_v${k}_polished.fasta -o step4_busco -l fungi_odb10 & ) & 
+  nohup busco -m genome -i pb_320-2_step3_v${k}_polished.fasta -o step4_busco -l fungi_odb10 & 
+  wait
+  echo "Done" >> countDone.txt ) & 
 done 
+cd ~/LUfungiProject/
+sum=$(($versions1+$versions2))
+count=$(cat countDone.txt|wc -l)
+while [ ! "$count" == "$sum" ]
+do 
+  sleep 10
+  count=$(cat countDone.txt|wc -l)
+done
+rm ~/LUfungiProject/countDone.txt
+
 # Generalize the busco-plotting pipeline
 cd ~/LUfungiProject/pb-assembly/
 mkdir busco_plots
@@ -303,6 +332,7 @@ nohup quast.py -o step2_v2_quast/ pb_320-2_falcon_step2_v2.fasta -r ../../Origin
 nohup quast.py -o step3_v2_quast/ pb_320-2_falcon_step3_v2.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
 
 #Create a more automated analysis workflow for quast analysis
+touch ~/LUfungiProject/countDone.txt
 cd ~/LUfungiProject/pb-assembly/
 conda deactivate
 conda activate py2
@@ -313,15 +343,29 @@ do
 ( cd ~/LUfungiProject/pb-assembly/pb_279_v${i}
   nohup quast.py -o step2_v${i}_quast/  pb_279_falcon_step2_v${i}.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 &
   nohup quast.py -o step3_v${i}_quast/  pb_279_falcon_step3_v${i}.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 &
-  nohup quast.py -o step4_v${i}_quast/  pb_279_step3_v${i}_polished.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 & ) &
+  nohup quast.py -o step4_v${i}_quast/  pb_279_step3_v${i}_polished.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 & 
+  wait
+  echo "Done" >> countDone.txt ) &
 done 
 for ((k=1;k<=$versions2;k++))
 do
 ( cd ~/LUfungiProject/pb-assembly/pb_320-2_v${k}
   nohup quast.py -o step2_v${k}_quast/ pb_320-2_falcon_step2_v${k}.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
   nohup quast.py -o step3_v${k}_quast/ pb_320-2_falcon_step3_v${k}.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
-  nohup quast.py -o step4_v${k}_quast/ pb_320-2_step3_v${k}_polished.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 & ) &
+  nohup quast.py -o step4_v${k}_quast/ pb_320-2_step3_v${k}_polished.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 & 
+  wait
+  echo "Done" >> countDone.txt ) &
 done 
+cd ~/LUfungiProject/
+sum=$(($versions1+$versions2))
+count=$(cat countDone.txt|wc -l)
+while [ ! "$count" == "$sum" ]
+do 
+  sleep 10
+  count=$(cat countDone.txt|wc -l)
+done
+rm ~/LUfungiProject/countDone.txt
+
 # Send my falcon assemblies and quast reports to the shared folder
 cd ~/LUfungiProject/pb-assembly/
 find -maxdepth 3 -name "report.pdf"|while read pdf;do dir=$(echo $pdf|cut -d / -f 1-3|sed -r 's/t$/t\//');newname=$(echo $dir|cut -d / -f 2-3|sed -r 's/v[0-9]_//'|tr / _);mv "$pdf" "$dir${newname}.pdf";done
