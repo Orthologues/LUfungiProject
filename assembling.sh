@@ -338,6 +338,6 @@ find -mindepth 3 -name "*.fasta"|while read fa;do (dir=$(echo $fa|cut -d / -f 1-
 cd /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies
 mkdir quast_279
 mkdir quast_320-2
-find -mindepth 3 -name "*279*.fasta"|while read fa;do (dir=$(echo $fa|cut -d / -f 1-3);fasta=$(echo $fa|cut -d / -f 4);name=$(echo $fasta|cut -d . -f 1);nohup quast.py -o quast_279/${name}/ $fa -r ~/LUfungiProject/OriginalAssemblies/pb_279_Leuge.fasta -t 20)& done
-find -mindepth 3 -name "*320-2*.fasta"|while read fa;do (dir=$(echo $fa|cut -d / -f 1-3);fasta=$(echo $fa|cut -d / -f 4);name=$(echo $fasta|cut -d . -f 1);nohup quast.py -o quast_320-2/${name}/ $fa -r ~/LUfungiProject/OriginalAssemblies/pb_320-2_Mysco.fasta -t 20)& done
-
+find -mindepth 3 -name "*279*.fasta"|while read fa;do (dir=$(echo $fa|cut -d / -f 1-3);fasta=$(echo $fa|cut -d / -f 4);name=$(echo $fasta|cut -d . -f 1);nohup quast.py -o quast_279/${name}/ $fa -r ~/LUfungiProject/OriginalAssemblies/pb_279_Leuge.fasta -t 20)& done 
+find -mindepth 3 -name "*320-2*.fasta"|while read fa;do (dir=$(echo $fa|cut -d / -f 1-3);fasta=$(echo $fa|cut -d / -f 4);name=$(echo $fasta|cut -d . -f 1);nohup quast.py -o quast_320-2/${name}/ $fa -r ~/LUfungiProject/OriginalAssemblies/pb_320-2_Mysco.fasta -t 20)& done #compare each of my assembly to the reference assembly
+ls */*/report.pdf|while read report;do newname=$(echo $report|cut -d / -f 2);dir=$(echo $report|cut -d / -f 1);mv $report $dir/${newname}.pdf;done #change the names of the .pdf reports in order to make them recognizable
