@@ -270,7 +270,7 @@ cp short_summary.specific.fungi_odb10.step3_busco.txt summaries/
 nohup generate_plot.py -wd summaries/ &
 cp summaries/*.png /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/busco_plots
 
-#create a more automated analysis workflow for busco analysis
+#create a more automated analysis workflow for busco analysis 
 touch ~/LUfungiProject/countDone.txt
 cd ~/LUfungiProject/pb-assembly/
 conda create -n busco -c bioconda -c conda-forge busco=4.0.6 python=3.7
@@ -385,3 +385,7 @@ mkdir quast_320-2
 find -mindepth 3 -name "*279*.fasta"|while read fa;do (dir=$(echo $fa|cut -d / -f 1-3);fasta=$(echo $fa|cut -d / -f 4);name=$(echo $fasta|cut -d . -f 1);nohup quast.py -o quast_279/${name}/ $fa -r ~/LUfungiProject/OriginalAssemblies/pb_279_Leuge.fasta -t 20)& done 
 find -mindepth 3 -name "*320-2*.fasta"|while read fa;do (dir=$(echo $fa|cut -d / -f 1-3);fasta=$(echo $fa|cut -d / -f 4);name=$(echo $fasta|cut -d . -f 1);nohup quast.py -o quast_320-2/${name}/ $fa -r ~/LUfungiProject/OriginalAssemblies/pb_320-2_Mysco.fasta -t 20)& done #compare each of my assembly to the reference assembly
 ls */*/report.pdf|while read report;do newname=$(echo $report|cut -d / -f 2);dir=$(echo $report|cut -d / -f 1);mv $report $dir/${newname}.pdf;done #change the names of the .pdf reports in order to make them recognizable
+
+#Generate fastqc reports for the output files of .fastq format from genomicconsensus
+cd ~/LUfungiProject/pb-assembly/
+mkdir fastqcReports;ls */*polished.fastq|while read fastq;do (name=$(echo $fastq|cut -d / -f 2|cut -d . -f 1);mkdir fastqcReports/$name;nohup fastqc --threads 20 -o fastqcReports/$name -f fastq $fastq ) & done
