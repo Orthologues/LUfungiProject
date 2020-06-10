@@ -377,7 +377,12 @@ find -maxdepth 2 -name "pb*.fasta"|while read asm;do cp $asm ../../../shared_bio
 # Run busco analysis for my previous assemblies
 cd /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies
 find -mindepth 3 -name "*.gfa"|while read gfa;do name=$(echo $gfa|sed 's/.gfa//'|cut -d / -f 4);path=$(echo $gfa|cut -d / -f 1-3);nohup awk -v gfa="$gfa" -v name="$name" -v path="$path"  '/^S/{print ">"$2"\n"$3}' $gfa > ${path}/${name}.fasta;done #convert .gfa files to .fasta files
-find -mindepth 3 -name "*.fasta"|while read fa;do (dir=$(echo $fa|cut -d / -f 1-3);fa=$(echo $fa|cut -d / -f 4);name=$(echo $fa|cut -d . -f 1);cd $dir;nohup busco -m genome -i $fa -o ${name}_busco -l fungi_odb10 &) & done
+find -mindepth 3 -name "*.fasta"|while read fa;do (dir=$(echo $fa|cut -d / -f 1-3);fa=$(echo $fa|cut -d / -f 4);name=$(echo $fa|cut -d . -f 1);cd $dir;nohup busco -m genome -i $fa -o ${name}_busco -l fungi_odb10) & done
+#However, busco analysis for some of those .fasta files failed since their headers consist of "/", which are forbidden for the input files of busco
+#clean the headers of these .fasta files
+ls */*/*.fasta|while read fasta;do fa=$(echo $fasta|sed 's/fasta/fa/');cat $fasta|tr -d "/" > $fa;done  
+find -mindepth 3 -name "*.fa"|while read fa;do (dir=$(echo $fa|cut -d / -f 1-3);fa=$(echo $fa|cut -d / -f 4);name=$(echo $fa|cut -d . -f 1);cd $dir;nohup busco -m genome -i $fa -o ${name}_busco -l fungi_odb10) & done
+
 # Create a parallel version of quast analysis of the non-falcon assemblies
 cd /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies
 mkdir quast_279
@@ -389,3 +394,4 @@ ls */*/report.pdf|while read report;do newname=$(echo $report|cut -d / -f 2);dir
 #Generate fastqc reports for the output files of .fastq format from genomicconsensus
 cd ~/LUfungiProject/pb-assembly/
 mkdir fastqcReports;ls */*polished.fastq|while read fastq;do (name=$(echo $fastq|cut -d / -f 2|cut -d . -f 1);mkdir fastqcReports/$name;nohup fastqc --threads 20 -o fastqcReports/$name -f fastq $fastq ) & done
+#Unfortunately, fastqc analysis of two .fastq files failed with "java:out of memory exception"
