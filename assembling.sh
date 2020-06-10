@@ -281,19 +281,17 @@ versions2=$(find -maxdepth 1 -name "pb_320-2_v*"|wc -l);
 for ((i=1;i<=$versions1;i++))
 do
 ( cd ~/LUfungiProject/pb-assembly/pb_279_v${i}
-  nohup busco -m genome -i pb_279_falcon_step2_v${i}.fasta -o step2_busco -l fungi_odb10 & 
-  nohup busco -m genome -i pb_279_falcon_step3_v${i}.fasta -o step3_busco -l fungi_odb10 & 
-  nohup busco -m genome -i pb_279_step3_v${i}_polished.fasta -o step4_busco -l fungi_odb10 & 
-  wait
+  nohup busco -m genome -i pb_279_falcon_step2_v${i}.fasta -o step2_busco -l fungi_odb10  
+  nohup busco -m genome -i pb_279_falcon_step3_v${i}.fasta -o step3_busco -l fungi_odb10  
+  nohup busco -m genome -i pb_279_step3_v${i}_polished.fasta -o step4_busco -l fungi_odb10  
   echo "Done" >> countDone.txt ) &
 done 
 for ((k=1;k<=$versions2;k++))
 do
 ( cd ~/LUfungiProject/pb-assembly/pb_320-2_v${k}
-  nohup busco -m genome -i pb_320-2_falcon_step2_v${k}.fasta -o step2_busco -l fungi_odb10 & 
-  nohup busco -m genome -i pb_320-2_falcon_step3_v${k}.fasta -o step3_busco -l fungi_odb10 & 
-  nohup busco -m genome -i pb_320-2_step3_v${k}_polished.fasta -o step4_busco -l fungi_odb10 & 
-  wait
+  nohup busco -m genome -i pb_320-2_falcon_step2_v${k}.fasta -o step2_busco -l fungi_odb10  
+  nohup busco -m genome -i pb_320-2_falcon_step3_v${k}.fasta -o step3_busco -l fungi_odb10  
+  nohup busco -m genome -i pb_320-2_step3_v${k}_polished.fasta -o step4_busco -l fungi_odb10  
   echo "Done" >> countDone.txt ) & 
 done 
 cd ~/LUfungiProject/
@@ -382,6 +380,7 @@ find -mindepth 3 -name "*.fasta"|while read fa;do (dir=$(echo $fa|cut -d / -f 1-
 #clean the headers of these .fasta files
 ls */*/*.fasta|while read fasta;do fa=$(echo $fasta|sed 's/fasta/fa/');cat $fasta|tr -d "/" > $fa;done  
 find -mindepth 3 -name "*.fa"|while read fa;do (dir=$(echo $fa|cut -d / -f 1-3);fa=$(echo $fa|cut -d / -f 4);name=$(echo $fa|cut -d . -f 1);cd $dir;nohup busco -m genome -i $fa -o ${name}_busco -l fungi_odb10) & done
+#This command isn't gonna work when there're multiple busco tasks within one folder to be run simultaneously, manual operations should be done in order to prevent empty output folders
 
 # Create a parallel version of quast analysis of the non-falcon assemblies
 cd /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies
