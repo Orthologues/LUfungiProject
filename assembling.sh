@@ -317,7 +317,7 @@ cd ~/LUfungiProject/OriginalAssemblies/
 nohup busco -m genome -i pb_279_Leuge.fasta -o pb_279_ref_busco -l fungi_odb10 &
 nohup busco -m genome -i pb_320-2_Mysco.fasta -o pb_320-2_ref_busco -l fungi_odb10 &
 wait
-find -maxdepth 2 -name "*busco.txt"|while read txt;do dir=$(echo $txt|cut -d / -f 1-2);mkdir ${dir}/summary;mv $txt ${dir}/summary;nohup generate_plot.py -wd ${dir}/summary/;done &
+find -maxdepth 2 -name "*busco.txt"|while read txt;do dir=$(echo $txt|cut -d / -f 1-2);mkdir ${dir}/summary;mv $txt ${dir}/summary;nohup generate_plot.py -wd ${dir}/summary/;done 
 find -name "*summary"|while read dir;do name=$(echo $dir|cut -d / -f 2);pardir=$(echo $dir|cut -d / -f 1-2);newname=$(echo ${pardir}/$name);mv $dir $newname;done
 mv */*_busco/ /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/busco_plots/
 
@@ -381,6 +381,19 @@ find -mindepth 3 -name "*.fasta"|while read fa;do (dir=$(echo $fa|cut -d / -f 1-
 ls */*/*.fasta|while read fasta;do fa=$(echo $fasta|sed 's/fasta/fa/');cat $fasta|tr -d "/" > $fa;done  
 find -mindepth 3 -name "*.fa"|while read fa;do (dir=$(echo $fa|cut -d / -f 1-3);fa=$(echo $fa|cut -d / -f 4);name=$(echo $fa|cut -d . -f 1);cd $dir;nohup busco -m genome -i $fa -o ${name}_busco -l fungi_odb10) & done
 #This command isn't gonna work when there're multiple busco tasks within one folder to be run simultaneously, manual operations should be done in order to prevent empty output folders
+find -maxdepth 4 -mindepth 4 -name "*busco.txt"|while read txt;do dir=$(echo $txt|cut -d / -f 1-4);name=$(echo $txt|cut -d / -f 5|cut -d . -f 4);mkdir ${dir}/${name}_summary;mv $txt ${dir}/${name}_summary;nohup generate_plot.py -wd ${dir}/${name}_summary/;done
+rm *.log;rm nohup.out
+find -maxdepth 4 -mindepth 4 -name "*summary"|while read summary;do mv $summary ./busco_plots/;done
+find -maxdepth 2 -name "*filtered*"|while read raven;do newname=$(echo $raven|sed 's/filtered_subreads/raven_/');mv $raven $newname;done
+find -maxdepth 2 -name "*step*"|while read falcon;do newname=$(echo $falcon|sed 's/step/falcon_step/');mv $falcon $newname;done
+find -maxdepth 2 -name "*falcon_falcon*"|while read falcon;do newname=$(echo $falcon|sed 's/_falcon_falcon_/_falcon_/');mv $falcon $newname;done
+find -maxdepth 2 -name "*polished*summary"|while read miniasm;do newname=$(echo $miniasm|sed 's/polished_/polished_miniasm_/');mv $miniasm $newname;done
+# In order to make the names of folders more recognizable
+
+mv busco_plots/pb_279_busco_summary/ busco_plots/pb_279_flye_busco_summary/
+mv busco_plots/pb_320-2_busco_summary/ busco_plots/pb_320-2_flye_busco_summary/
+
+
 
 # Create a parallel version of quast analysis of the non-falcon assemblies
 cd /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies
