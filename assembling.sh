@@ -216,6 +216,12 @@ versions2=$(find -maxdepth 1 -name "pb_320-2_v*"|wc -l);
 for ((i=1;i<=$versions1;i++))
 do
 ( cd ~/LUfungiProject/pb-assembly/pb_279_v${i}
+  cat 2-asm-falcon/p_ctg.fa 2-asm-falcon/a_ctg.fa > pb_279_falcon_step2_v${i}.fasta
+  cat 3-unzip/all_p_ctg.fa 3-unzip/all_h_ctg.fa >pb_279_falcon_step3_v${i}.fasta
+  mv 2-asm-falcon/*.fa .
+  mv 3-unzip/*.fa .
+  find -maxdepth 1|grep \.\/[0-9].|while read dir;do rm -rf $dir;done
+  ls ../../bamfiles/pb_279/*subreads.bam|while read bam;do echo $bam >> pb_279_bam.fofn;done
   nohup pbmm2 align pb_279_falcon_step3_v${i}.fasta pb_279_bam.fofn pb_279_v${i}_aligned.bam --sort -j 8 -J 8 -m 32G --preset SUBREAD & 
   nohup samtools faidx pb_279_falcon_step3_v${i}.fasta -o pb_279_falcon_step3_v${i}.fasta.fai &
   wait
@@ -230,6 +236,12 @@ done
 for ((k=1;k<=$versions2;k++))
 do
 ( cd ~/LUfungiProject/pb-assembly/pb_320-2_v${k}
+  cat 2-asm-falcon/p_ctg.fa 2-asm-falcon/a_ctg.fa > pb_320-2_falcon_step2_v${k}.fasta
+  cat 3-unzip/all_p_ctg.fa 3-unzip/all_h_ctg.fa >pb_320-2_falcon_step3_v${k}.fasta
+  mv 2-asm-falcon/*.fa .
+  mv 3-unzip/*.fa .
+  find -maxdepth 1|grep \.\/[0-9].|while read dir;do rm -rf $dir;done
+  ls ../../bamfiles/pb_320-2/*subreads.bam|while read bam;do echo $bam >> pb_320-2_bam.fofn;done
   nohup pbmm2 align pb_320-2_falcon_step3_v${k}.fasta pb_320-2_bam.fofn pb_320-2_v${k}_aligned.bam --sort -j 8 -J 8 -m 32G --preset SUBREAD & 
   nohup samtools faidx pb_320-2_falcon_step3_v${k}.fasta -o pb_320-2_falcon_step3_v${k}.fasta.fai &
   wait
