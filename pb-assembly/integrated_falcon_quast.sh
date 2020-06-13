@@ -10,7 +10,7 @@ helpFunction()
    echo -e "\t-k [INT] Specifies the number of threads used for sorting of pbmm2-aligned subreads.0 means 25% of -j, with a maximum of 8.(Default = 0)"     
    echo -e "\t-m [INT] Specifies the memory per thread for sorting. (Default = 768M)"
    echo -e "\t-t [INT] Specifies the number of threads used for variantCaller --algorithm=arrow (Default = 8)"   
-   echo "Disclaimer: You must be under a conda environment which has installed pb-assembly(py2 version), pbmm2, pbindex, samtools and genomicconsensus!"
+   echo "Disclaimer: You must be under a conda environment which has installed pb-assembly(py2 version), pbmm2, pbindex, samtools, genomicconsensus and quast!"
    exit 1
 }
 
