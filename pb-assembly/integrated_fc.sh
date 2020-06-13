@@ -9,7 +9,8 @@ helpFunction()
    echo -e "\t-j [INT] Specifies the number of threads used for alignment in pbmm2. 0 means autodetection. (Default = 0)"
    echo -e "\t-k [INT] Specifies the number of threads used for sorting of pbmm2-aligned subreads.0 means 25% of -j, with a maximum of 8.(Default = 0)"     
    echo -e "\t-m [INT] Specifies the memory per thread for sorting. (Default = 768M)"
-   echo -e "\t-t [INT] Specifies the number of threads used for variantCaller --algorithm=arrow (Default = 8)"     
+   echo -e "\t-t [INT] Specifies the number of threads used for variantCaller --algorithm=arrow (Default = 8)"   
+   echo "Disclaimer: You must be under a conda environment which has installed pb-assembly(py2 version), pbmm2, pbindex, samtools and genomicconsensus!"
    exit 1
 }
 
@@ -51,11 +52,11 @@ cd ~/${parR}pb-assembly/
 versions=$(find -maxdepth 1 -name "pb_${parN}_v*"|wc -l);
 for ((i=1;i<=$versions;i++))
 do
-( nohup fc_run ../mycfgs/fc_pb_${parN}_v${i}.cfg &> run0.log &
+( cd ~/${parR}pb-assembly/pb_${parN}_v${i}
+  nohup fc_run ../mycfgs/fc_pb_${parN}_v${i}.cfg &> run0.log &
   wait
   nohup fc_unzip.py ../mycfgs/fc_unzip_pb_${parN}.cfg &> run1.std &
   wait
-  cd ~/${parR}pb-assembly/pb_${parN}_v${i}
   cat 2-asm-falcon/p_ctg.fa 2-asm-falcon/a_ctg.fa > pb_${parN}_falcon_step2_v${i}.fasta
   cat 3-unzip/all_p_ctg.fa 3-unzip/all_h_ctg.fa >pb_${parN}_falcon_step3_v${i}.fasta
   mv 2-asm-falcon/*.fa .
