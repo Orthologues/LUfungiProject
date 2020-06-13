@@ -46,3 +46,38 @@ else
   fi
 fi
 echo "Your input is successful!"
+touch ~/${parR}countDone.txt
+cd ~/${parR}pb-assembly/
+versions=$(find -maxdepth 1 -name "pb_${parN}_v*"|wc -l);
+for ((i=1;i<=$versions;i++))
+do
+( nohup fc_run ../mycfgs/fc_pb_${parN}_v${i}.cfg &> run0.log &
+  wait
+  nohup fc_unzip.py ../mycfgs/fc_unzip_pb_${parN}.cfg &> run1.std &
+  wait
+  cd ~/${parR}pb-assembly/pb_${parN}_v${i}
+  cat 2-asm-falcon/p_ctg.fa 2-asm-falcon/a_ctg.fa > pb_${parN}_falcon_step2_v${i}.fasta
+  cat 3-unzip/all_p_ctg.fa 3-unzip/all_h_ctg.fa >pb_${parN}_falcon_step3_v${i}.fasta
+  mv 2-asm-falcon/*.fa .
+  mv 3-unzip/*.fa .
+  find -maxdepth 1|grep \.\/[0-9].|while read dir;do rm -rf $dir;done
+  ls ../../bamfiles/pb_${parN}/*subreads.bam|while read bam;do echo $bam >> pb_${parN}_bam.fofn;done
+  nohup pbmm2 align pb_${parN}_falcon_step3_v${i}.fasta pb_${parN}_bam.fofn pb_${parN}_v${i}_aligned.bam --sort -j ${parJ} -J ${parK} -m ${parM} --preset SUBREAD & 
+  nohup samtools faidx pb_${parN}_falcon_step3_v${i}.fasta -o pb_${parN}_falcon_step3_v${i}.fasta.fai &
+  wait
+  nohup pbindex pb_${parN}_v${i}_aligned.bam &
+  wait
+  nohup arrow pb_${parN}_v${i}_aligned.bam -r pb_${parN}_falcon_step3_v${i}.fasta -o pb_${parN}_step3_v${i}_polished.fastq -j ${parT} --diploid &
+  wait
+  nohup cat pb_${parN}_step3_v${i}_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_${parN}_step3_v${i}_polished.fasta &  
+  wait
+  echo "Done" >> countDone.txt ) & 
+done 
+cd ~/${parR}
+count=$(cat countDone.txt|wc -l)
+while [ ! "$count" == "$versions" ]
+do 
+  sleep 10
+  count=$(cat countDone.txt|wc -l)
+done
+rm ~/${parR}countDone.txt
