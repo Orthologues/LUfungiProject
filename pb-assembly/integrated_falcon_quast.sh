@@ -2,7 +2,7 @@ helpFunction()
 {
    echo "--------------------------------Help-Info--------------------------------"
    echo "An integrated pipeline shell script for assembling polished consensus genomes of a diploid species from its pacbio subreads and subsequently do quast analysis for these assemblies"
-   echo "Usage: sh ./integrated_falcon_quast.sh -r repository -n index [options] &"
+   echo "Usage: nohup sh ./integrated_falcon_quast.sh -r repository -n index [options] &"
    echo -e "\t-r [STR] Specifies the parent directory of your 'pb-assembly' directory"
    echo -e "\t-n [STR] Specifies the index of your species in PacBio sequencing. For example, if you input '279', its corresponding string would be 'pb_279'"
    echo -e "\t [Options]"

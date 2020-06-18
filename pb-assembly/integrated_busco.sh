@@ -2,7 +2,7 @@
 helpFunction()
 {
    echo "--------------------------------Help-Info--------------------------------"
-   echo "Usage: sh ./integrated_busco.sh -r repository -n index -k Kingdom &"
+   echo "Usage: nohup sh ./integrated_busco.sh -r repository -n index -k Kingdom &"
    echo "An integrated pipeline shell script to do busco analysis for falcon-assemblies of different steps after running integrated_falcon_quast.sh"
    echo -e "\t-r [STR] Specifies the parent directory of your 'pb-assembly' directory"
    echo -e "\t-n [STR] Specifies the index of your species in PacBio sequencing. For example, if you input '279', its corresponding string would be 'pb_279'"
