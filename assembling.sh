@@ -293,17 +293,19 @@ versions2=$(find -maxdepth 1 -name "pb_320-2_v*"|wc -l);
 for ((i=1;i<=$versions1;i++))
 do
 ( cd ~/LUfungiProject/pb-assembly/pb_279_v${i}
-  nohup busco -m genome -i pb_279_falcon_step2_v${i}.fasta -o step2_busco -l fungi_odb10  
-  nohup busco -m genome -i pb_279_falcon_step3_v${i}.fasta -o step3_busco -l fungi_odb10  
-  nohup busco -m genome -i pb_279_step3_v${i}_polished.fasta -o step4_busco -l fungi_odb10  
+  nohup busco -m genome -i pb_279_falcon_step2_v${i}.fasta -o step2_busco -l fungi_odb10 & sleep 10
+  nohup busco -m genome -i pb_279_falcon_step3_v${i}.fasta -o step3_busco -l fungi_odb10 & sleep 10
+  nohup busco -m genome -i pb_279_step3_v${i}_polished.fasta -o step4_busco -l fungi_odb10 & sleep 10
+  wait
   echo "Done" >> ../../countDone.txt ) &
 done 
 for ((k=1;k<=$versions2;k++))
 do
 ( cd ~/LUfungiProject/pb-assembly/pb_320-2_v${k}
-  nohup busco -m genome -i pb_320-2_falcon_step2_v${k}.fasta -o step2_busco -l fungi_odb10  
-  nohup busco -m genome -i pb_320-2_falcon_step3_v${k}.fasta -o step3_busco -l fungi_odb10  
-  nohup busco -m genome -i pb_320-2_step3_v${k}_polished.fasta -o step4_busco -l fungi_odb10  
+  nohup busco -m genome -i pb_320-2_falcon_step2_v${k}.fasta -o step2_busco -l fungi_odb10 & sleep 10
+  nohup busco -m genome -i pb_320-2_falcon_step3_v${k}.fasta -o step3_busco -l fungi_odb10 & sleep 10
+  nohup busco -m genome -i pb_320-2_step3_v${k}_polished.fasta -o step4_busco -l fungi_odb10 & sleep 10
+  wait
   echo "Done" >> ../../countDone.txt ) & 
 done 
 cd ~/LUfungiProject/
