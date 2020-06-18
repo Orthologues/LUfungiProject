@@ -72,7 +72,7 @@ do
   wait
   nohup cat pb_${parN}_step3_v${i}_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_${parN}_step3_v${i}_polished.fasta &  
   wait
-  echo "Done" >> countDone.txt ) & 
+  echo "Done" >> ../../countDone.txt ) & 
 done 
 cd ~/${parR}
 count=$(cat countDone.txt|wc -l)
@@ -82,3 +82,24 @@ do
   count=$(cat countDone.txt|wc -l)
 done
 rm ~/${parR}countDone.txt
+touch ~/${parR}countDone.txt
+cd ~/${parR}pb-assembly/
+for ((i=1;i<=$versions;i++))
+do
+( cd ~/${parR}pb-assembly/pb_${parN}_v${i}
+  nohup quast.py -o step2_v${i}_quast/  pb_${parN}_falcon_step2_v${i}.fasta -r ../../OriginalAssemblies/pb_${parN}_Leuge.fasta -t 20 &
+  nohup quast.py -o step3_v${i}_quast/  pb_${parN}_falcon_step3_v${i}.fasta -r ../../OriginalAssemblies/pb_${parN}_Leuge.fasta -t 20 &
+  nohup quast.py -o step4_v${i}_quast/  pb_${parN}_step3_v${i}_polished.fasta -r ../../OriginalAssemblies/pb_${parN}_Leuge.fasta -t 20 & 
+  wait
+  echo "Done" >> ../../countDone.txt ) &
+done 
+cd ~/${parR}
+count=$(cat countDone.txt|wc -l)
+while [ ! "$count" == "$versions" ]
+do 
+  sleep 10
+  count=$(cat countDone.txt|wc -l)
+done
+cd ~/${parR}pb-assembly/
+find -maxdepth 3 -name "report.pdf"|while read pdf;do dir=$(echo $pdf|cut -d / -f 1-3|sed -r 's/quast/quast\//');newname=$(echo $dir|cut -d / -f 2-3|sed -r 's/v[0-9]_//'|tr / _);mv "$pdf" "$dir${newname}.pdf";done
+find -maxdepth 3 -name "*quast.pdf" #to check if pdf names are changed properly
