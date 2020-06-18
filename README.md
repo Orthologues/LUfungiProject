@@ -24,7 +24,7 @@
 
 <a name="intro1"></a>
 # Introduction to software which would be used or tried for assembling genomes
-Because of the dikaryotic nature of these two fungi, a chronological combination of falcon & falcon-unzip & falcon-phase from  [***pb-assembly***](#pbasm) is supposed to be the most appropriate combo here. Nonetheless, several other popular genome assemblers & polishers ([***miniasm***](#miniasm),[***minipolish***](#minipolish),[***raven***](#raven),[***flye***](#flye),[***canu***](#canu)) which are available for PacBio subreads would be listed and tried as well. (However, [**CANU assembler**](#canu) was ultimately discarded since it really had taken too much time without results).
+Because of the dikaryotic nature of these two fungi, a chronological combination of falcon & falcon-unzip & falcon-phase from  [***pb-assembly***](#pbasm) is supposed to be the most appropriate combo here. Nonetheless, several other popular genome assemblers & polishers ([***miniasm***](#miniasm),[***minipolish***](#minipolish),[***raven***](#raven),[***flye***](#flye),[***canu***](#canu)) which are available for PacBio subreads would be listed and tried as well. (However, [***CANU***](#canu) assembler was ultimately discarded since it had already taken too much time and still hadn't given final assemblies).
 
 Since I have encountered the same issue when using falcon-unzip as the unsolved issue here shows, 
 
@@ -164,6 +164,19 @@ canu -h
 
 <a name="fastqc"></a>
 ## fastqc
+FastQC is a program designed to spot potential problems in high througput sequencing datasets. It runs a set of analyses on one or more raw sequence files in fastq or bam format and produces a report which summarises the results.
+
+FastQC will highlight any areas where this library looks unusual and where you should take a closer look. The program is not tied to any specific type of sequencing technique and can be used to look at libraries coming from a large number of different experiment types (Genomic Sequencing, ChIP-Seq, RNA-Seq, BS-Seq etc etc).
+
+### Installation and help
+
+```bash
+conda activate py2
+conda install -c bioconda fastqc
+fastqc -h
+```
+### Official github page
+- [fastqc](https://github.com/s-andrews/FastQC)
 
 <a name="multiqc"></a>
 ## multiqc
