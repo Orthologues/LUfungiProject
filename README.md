@@ -120,6 +120,17 @@ raven -h
 
 <a name="flye"></a>
 ## flye
+Flye is a de novo assembler for single molecule sequencing reads, such as those produced by PacBio and Oxford Nanopore Technologies. It is designed for a wide range of datasets, from small bacterial projects to large mammalian-scale assemblies. The package represents a complete pipeline: it takes raw PacBio / ONT reads as input and outputs polished contigs. Flye also has a special mode for metagenome assembly.
+
+### Installation and help
+
+```bash
+conda activate py3
+conda install -c bioconda flye
+flye -h
+```
+### Official github page
+- [flye-assembler](https://github.com/fenderglass/Flye)
 
 <a name="canu"></a>
 ## canu
