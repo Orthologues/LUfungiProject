@@ -20,4 +20,5 @@ pb_320-2_filtered_subreads.fasta
 bamfiles
 pb-assembly/*
 !pb-assembly/mycfgs
+!pb-assembly/integrated*.sh
 test1.sh
