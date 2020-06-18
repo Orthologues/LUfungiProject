@@ -24,10 +24,13 @@
 
 <a name="intro1"></a>
 # Introduction to software which would be used or tried for assembling genomes
-Because of the dikaryotic nature of these two fungi, a chronological combination of falcon & falcon-unzip & falcon-phase from  [***pb-assembly***](#pbasm) is supposed to be the most appropriate combo here. Nonetheless, several other popular genome assemblers & polishers ([***miniasm***](#miniasm),[***minipolish***](#minipolish),[***raven***](#raven),[***flye***](#flye),[***canu***](#canu)) which are available for PacBio subreads would be listed and tried as well. (However, CANU assembler was ultimately discarded since it really had taken too much time without results).
+Because of the dikaryotic nature of these two fungi, a chronological combination of falcon & falcon-unzip & falcon-phase from  [***pb-assembly***](#pbasm) is supposed to be the most appropriate combo here. Nonetheless, several other popular genome assemblers & polishers ([***miniasm***](#miniasm),[***minipolish***](#minipolish),[***raven***](#raven),[***flye***](#flye),[***canu***](#canu)) which are available for PacBio subreads would be listed and tried as well. (However, [**CANU assembler**](#canu) was ultimately discarded since it really had taken too much time without results).
+
 Since I have encountered the same issue when using falcon-unzip as the unsolved issue here shows, 
-[Error at 4-polish](https://github.com/PacificBiosciences/FALCON_unzip/issues/159)
-I decided to concatenate the .fasta file of primary contigs and the .fasta file of haplotype contigs into a reference assembly file. Both the primary-contig file and the haplotype-contig file were output from the successful '3-unzip' step of falcon-unzip. Thus, the concatenated .fasta file would be used as a reference input for [***pbmm2***](#pbmm2) & for + [***genomicconsensus***](#gcc) in order to generate a polished consensus .fasta file. Unfortunately, it would be impossible to use falcon-phase then. As a result, the consensus .fasta file would be considered as the final assembly.    
+
+- [Error at 4-polish](https://github.com/PacificBiosciences/FALCON_unzip/issues/159)
+
+I decided to concatenate the .fasta file of primary contigs and the .fasta file of haplotype contigs into a reference assembly file. Both the primary-contig file and the haplotype-contig file were output from the successful '3-unzip' step of falcon-unzip. Thus, the concatenated .fasta file would be used as a reference input for [***pbmm2***](#pbmm2) & for + [***genomicconsensus***](#gcc) in order to generate a polished consensus .fasta file. Unfortunately, it would be impossible to use falcon-phase then. As a result, the consensus .fasta file would be considered as the final assembly. In order to access more detailed descriptions of PacBio SMRT tools, an online tutorial is available at [***SMRTtools***](https://www.pacb.com/wp-content/uploads/SMRT_Tools_Reference_Guide_v700.pdf).  
 
 <a name="pbasm"></a>
 ## pb-assembly
@@ -43,7 +46,7 @@ conda install -c bioconda samtools=1.9 --force-reinstall #https://github.com/bio
 fc_run.py -h
 ```
 ### Official Github Page
-- [PacBio:pb-assembly](https://github.com/PacificBiosciences/pb-assembly)
+- [PacBio:falcon](https://github.com/PacificBiosciences/pb-assembly)
 
 <a name="pbmm2"></a>
 ## pbmm2
@@ -134,6 +137,27 @@ flye -h
 
 <a name="canu"></a>
 ## canu
+Canu is a fork of the Celera Assembler, designed for high-noise single-molecule sequencing (such as the PacBio RS II/Sequel or Oxford Nanopore MinION).
+Canu is a hierarchical assembly pipeline which runs in four steps:
+
+- Detect overlaps in high-noise sequences using MHAP
+
+- Generate corrected sequence consensus
+
+- Trim corrected sequences
+
+- Assemble trimmed corrected sequences
+
+### Installation and help
+
+```bash
+conda activate py3
+conda install -c bioconda canu
+export PERL5LIB="" #https://groups.google.com/a/continuum.io/g/anaconda/c/5DFTW1GDgXQ?pli=1
+canu -h
+```
+### Official github page
+- [canu-assembler](https://github.com/marbl/canu)
 
 <a name="intro2"></a>
 # Introduction to software which would be used or tried for evaluation of raw data & assembly evaluation
