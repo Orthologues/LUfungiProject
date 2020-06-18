@@ -35,9 +35,11 @@ pb-assembly is an official PacBio combo of three genome assembly tools - falcon,
 ### Installation and help
 
 ```bash
-conda create -n denovo
-conda activate denovo
+conda create -n py2 python=2.7
+conda activate py2
+conda install -c bioconda/label/cf201901 nim-falcon #https://github.com/PacificBiosciences/pbbioconda/issues/265
 conda install -c bioconda pb-assembly
+conda install -c bioconda samtools=1.9 --force-reinstall #https://github.com/bioconda/bioconda-recipes/issues/13958
 fc_run.py -h
 ```
 ### Official Github Page
@@ -49,6 +51,7 @@ pbmm2 is a SMRT C++ wrapper for minimap2's C API. Its purpose is to support nati
 
 ### Installation and help
 ```bash
+conda activate py2
 conda install -c bioconda pbmm2
 pbmm2 -h
 ```
@@ -62,6 +65,7 @@ GenomicConsensus package provides a variant-calling tool which allows users to a
 ### Installation and help
 
 ```bash
+conda activate py2
 conda install -c bioconda genomicconsensus python=2
 quiver -h
 arrow -h
@@ -72,6 +76,15 @@ arrow -h
 <a name="miniasm"></a>
 ## miniasm
 Miniasm is a rather particular long-read assembler as it doesn't include a consensus step. The resulting contigs are just merged erroneous long reads and still contains many sequencing errors. Produced contigs are structually correct, but at the nucleotide level, there're many mismatches and indels. Its output format is .gfa.
+
+### Installation and help
+
+```bash
+conda activate py2
+conda install -c bioconda miniasm
+miniasm -h
+minimap2 -h
+```
 
 ### Official Github Page
 - [miniasm](https://github.com/lh3/miniasm)
@@ -93,6 +106,17 @@ minipolish -h
 
 <a name="raven"></a>
 ## raven
+Raven is an advanced version of Racon-assembler. It's a de novo genome assembler for long uncorrected reads. It's likely to be relatively reliable for chromosome assembly, though it doesn't perform well on small plasmids and has circularisation issues.
+
+### Installation and help
+
+```bash
+conda activate py3
+conda install -c bioconda raven-assembler 
+raven -h
+```
+### Official github page
+- [raven-assembler](https://github.com/lbcb-sci/raven)
 
 <a name="flye"></a>
 ## flye
