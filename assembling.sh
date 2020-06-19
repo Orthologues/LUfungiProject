@@ -422,13 +422,24 @@ cd ~/LUfungiProject/pb-assembly/
 mkdir fastqcReports;ls */*polished.fastq|while read fastq;do (name=$(echo $fastq|cut -d / -f 2|cut -d . -f 1);mkdir fastqcReports/$name;nohup fastqc --threads 20 -o fastqcReports/$name -f fastq $fastq ) & done
 #Unfortunately, fastqc analysis of two .fastq files failed with "java:out of memory exception"
 
-#multiqc1.9 becomes installed and available to analyse busco & quast results
+# run the integrated busco pipeline script
 cd ~/LUfungiProject/pb-assembly/
+conda activate busco
+rm -rf pb_*v*/step*busco
+nohup sh ./integrated_busco.sh -r LUfungiProject -n 279 -k fungi_odb10 &
+nohup sh ./integrated_busco.sh -r LUfungiProject -n 320-2 -k fungi_odb10 &
+wait
+#multiqc1.9 becomes installed and available to analyse busco & quast results
 conda deactivate
 conda activate py3.6
 multiqc busco_plots279/ -o multiqc_busco279 &>> mtqc.log &
 multiqc busco_plots320-2/ -o multiqc_busco320-2 &>> mtqc.log &
 multiqc pb_320-2_*/*quast/report.tsv -o multiqc_quast320-2 &>> mtqc.log &
 multiqc pb_279_*/*quast/report.tsv -o multiqc_quast279 &>> mtqc.log &
+
+cd /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/busco_plots
+rm -rf *falcon*;rm -rf *v[0-9]*/ #remove the previous busco plots of falcon assemblies here due to replicated names of summary*.txt files which lead to confused multiqc search
+cp -rf ../../../../jiawei_zhao/LUfungiProject/pb-assembly/busco_plots279/*busco .
+cp -rf ../../../../jiawei_zhao/LUfungiProject/pb-assembly/busco_plots320-2/*busco . #copy again, we don't have replicated .txt names this time
 
 
