@@ -47,6 +47,7 @@ else
   fi
 fi
 echo "Your input is successful!"
+rm ~/${parR}countDone${parN}.txt
 touch ~/${parR}countDone${parN}.txt
 cd ~/${parR}pb-assembly/
 versions=$(find -maxdepth 1 -name "pb_${parN}_v*"|wc -l);

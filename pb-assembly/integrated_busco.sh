@@ -44,7 +44,8 @@ else
     helpFunction
   else 
     echo -e "This script has begun to run...\n"
-    rm ../countDone${parN}_busco.txt
+    rm countDone${parN}_busco.txt
+    touch countDone${parN}_busco.txt
     for ((i=1;i<=$versions;i++))
     do
     ( cd ~/${parR}pb-assembly/pb_${parN}_v${i}
@@ -65,6 +66,5 @@ else
     cd busco_plots${parN}
     ls ../*${parN}*/step*_busco/*.txt|while read txt;do name=$(echo $txt|cut -d / -f 2-3|tr -d \/|sed 's/step/_step/');echo $name;mkdir $name;cp $txt $name;done
     nohup sh -c 'ls *busco/|grep ^pb|sed 's/://'|while read dir;do nohup generate_plot.py -wd $dir;done' & wait
-    rm *.log
   fi  
 fi
