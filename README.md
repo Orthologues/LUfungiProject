@@ -252,4 +252,4 @@ busco -h
 
 <a name="pipelines"></a>
 # Pipelines of analysis
-First of all, the tree of my local repository is shown here:
+First of all, the proposed file-tree of my local repository is shown here: [***tree.txt***](https://github.com/Orthologues/LUfungiProject/blob/master/tree.txt). In order to achieve achieve availability of my integrated pipeline scripts of [***assembling by falcon & quast analysis***](https://github.com/Orthologues/LUfungiProject/blob/master/pb-assembly/integrated_falcon_quast.sh) and of [***falcon-assembly busco analysis***](https://github.com/Orthologues/LUfungiProject/blob/master/pb-assembly/integrated_busco.sh), your local repository of a reproduced diploid genome-assembly project must be directly under your own home("~/") directory.
