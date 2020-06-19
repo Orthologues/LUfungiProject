@@ -66,5 +66,12 @@ else
     cd busco_plots${parN}
     ls ../*${parN}*/step*_busco/*.txt|while read txt;do name=$(echo $txt|cut -d / -f 2-3|tr -d \/|sed 's/step/_step/');echo $name;mkdir $name;cp $txt $name;done
     nohup sh -c 'ls *busco/|grep ^pb|sed 's/://'|while read dir;do nohup generate_plot.py -wd $dir;done' & wait
+    rm *.log
+    ls */*busco.txt|while read txt
+    do 
+      label=$(echo $txt|cut -d / -f 1|cut -d _ -f 1-3)
+      newname=$(echo $txt|sed "s/busco.txt/${label}_busco.txt/")
+      mv $txt $newname #change the names of summary*.txt files in order to avoid replicated file names
+    done
   fi  
 fi
