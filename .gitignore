@@ -2,13 +2,10 @@ fastqcReports
 multiQCreports
 pb_279_filtered_subreads.fastq.gz
 pb_320-2_filtered_subreads.fastq.gz
-racon
 genome_assemblies
-unzipped
 flyeAssembly
 miniasmAssembly
 ravenAssembly
-kmerfreq
 nohup.out
 OriginalAssemblies
 pb_320-2_baxh5.txt
@@ -22,3 +19,4 @@ pb-assembly/*
 !pb-assembly/mycfgs
 !pb-assembly/integrated*.sh
 test1.sh
+count*
