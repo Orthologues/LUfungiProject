@@ -88,9 +88,9 @@ cd ~/${parR}pb-assembly/
 for ((i=1;i<=$versions;i++))
 do
 ( cd ~/${parR}pb-assembly/pb_${parN}_v${i}
-  nohup quast.py -o step2_v${i}_quast/  pb_${parN}_falcon_step2_v${i}.fasta -r ../../OriginalAssemblies/pb_${parN}_Leuge.fasta -t 20 &
-  nohup quast.py -o step3_v${i}_quast/  pb_${parN}_falcon_step3_v${i}.fasta -r ../../OriginalAssemblies/pb_${parN}_Leuge.fasta -t 20 &
-  nohup quast.py -o step4_v${i}_quast/  pb_${parN}_step3_v${i}_polished.fasta -r ../../OriginalAssemblies/pb_${parN}_Leuge.fasta -t 20 & 
+  nohup quast.py -o step2_v${i}_quast/  pb_${parN}_falcon_step2_v${i}.fasta -t 8 &
+  nohup quast.py -o step3_v${i}_quast/  pb_${parN}_falcon_step3_v${i}.fasta -t 8 &
+  nohup quast.py -o step4_v${i}_quast/  pb_${parN}_step3_v${i}_polished.fasta -t 8 & 
   wait
   echo "Done" >> ../../countDone${parN}.txt ) &
 done 
