@@ -195,8 +195,8 @@ conda activate py3.6
 multiqc -h
 ```
 ### Official github page and official documentation
-- [multiqc_github](https://github.com/ewels/MultiQC)
-- [multiqc_documentation](https://multiqc.info/docs/#running-multiqc)
+- [multiqc-github](https://github.com/ewels/MultiQC)
+- [multiqc-documentation](https://multiqc.info/docs/#running-multiqc)
 
 <a name="quast"></a>
 ## QUAST
@@ -252,3 +252,4 @@ busco -h
 
 <a name="pipelines"></a>
 # Pipelines of analysis
+First of all, the tree of my local repository is shown here:
