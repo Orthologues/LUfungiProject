@@ -1,0 +1,61 @@
+.
+├── bamfiles
+│   ├── pb_279
+│   ├── pb_279_list
+│   ├── pb_320-2
+│   └── pb_320-2_list
+├── DagREADME
+├── fastqcReports
+│   ├── pb_279
+│   ├── pb_280
+│   ├── pb_320-2
+│   └── pb_337-2
+├── flyeAssembly
+├── genome_assemblies -> /home2/shared_bioinformatics_master_projects/agaricalesGenomes/genome_assemblies
+├── lenstat.txt
+├── miniasmAssembly
+├── multiQCreports
+│   ├── multiqc_data
+│   └── multiqc_report.html
+├── OriginalAssemblies
+│   ├── busco_downloads
+│   ├── nohup.out
+│   ├── pb_279_Leuge -> ../../../../shared_bioinformatics_master_projects/agaricalesGenomes/genome_assemblies/pb_279_Leuge/
+│   ├── pb_279_Leuge.fasta
+│   ├── pb_279_ref_busco
+│   ├── pb_320-2_Mysco -> ../../../../shared_bioinformatics_master_projects/agaricalesGenomes/genome_assemblies/pb_320-2_Mysco/
+│   ├── pb_320-2_Mysco.fasta
+│   └── pb_320-2_ref_busco
+├── pb_279_baxh5.txt
+├── pb_279_filtered_subreads.fasta
+├── pb_279_filtered_subreads.fastq.gz -> ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_279/filtered_subreads/pb_279_filtered_subreads.fastq.gz
+├── pb_279_raw -> ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_279/rawdata/run1
+├── pb_320-2_baxh5.txt
+├── pb_320-2_filtered_subreads.fasta
+├── pb_320-2_filtered_subreads.fastq.gz -> ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_320-2/subreads/pb_320-2_filtered_subreads.fastq.gz
+├── pb_320-2_raw -> ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_320-2/raw/run1/
+├── pb-assembly
+│   ├── busco_plots279
+│   ├── cfgs
+│   ├── fastqcReports
+│   ├── mtqc.log
+│   ├── multiqc_busco279
+│   ├── multiqc_quast279
+│   ├── multiqc_quast320-2
+│   ├── mycfgs
+│   ├── nohup.out
+│   ├── pb_279_bam.fofn
+│   ├── pb_279_fa.fofn
+│   ├── pb_279_v1
+│   ├── pb_279_v2
+│   ├── pb_320-2_bam.fofn
+│   ├── pb_320-2_fa.fofn
+│   ├── pb_320-2_v1
+│   ├── pb_320-2_v2
+│   ├── pb_320-2_v3
+│   └── scripts
+├── ravenAssembly
+├── README.md
+└── tree.txt
+
+36 directories, 22 files
