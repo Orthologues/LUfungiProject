@@ -421,3 +421,14 @@ ls */*/report.pdf|while read report;do newname=$(echo $report|cut -d / -f 2);dir
 cd ~/LUfungiProject/pb-assembly/
 mkdir fastqcReports;ls */*polished.fastq|while read fastq;do (name=$(echo $fastq|cut -d / -f 2|cut -d . -f 1);mkdir fastqcReports/$name;nohup fastqc --threads 20 -o fastqcReports/$name -f fastq $fastq ) & done
 #Unfortunately, fastqc analysis of two .fastq files failed with "java:out of memory exception"
+
+#multiqc1.9 becomes installed and available to analyse busco & quast results
+cd ~/LUfungiProject/pb-assembly/
+conda deactivate
+conda activate py3.6
+multiqc busco_plots279/ -o multiqc_busco279 &>> mtqc.log &
+multiqc busco_plots320-2/ -o multiqc_busco320-2 &>> mtqc.log &
+multiqc pb_320-2_*/*quast/report.tsv -o multiqc_quast320-2 &>> mtqc.log &
+multiqc pb_279_*/*quast/report.tsv -o multiqc_quast279 &>> mtqc.log &
+
+
