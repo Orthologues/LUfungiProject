@@ -441,5 +441,5 @@ cd /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_as
 rm -rf *falcon*;rm -rf *v[0-9]*/ #remove the previous busco plots of falcon assemblies here due to replicated names of summary*.txt files which lead to confused multiqc search
 cp -rf ../../../../jiawei_zhao/LUfungiProject/pb-assembly/busco_plots279/*busco .
 cp -rf ../../../../jiawei_zhao/LUfungiProject/pb-assembly/busco_plots320-2/*busco . #copy again, we don't have replicated .txt names this time
-
-
+multiqc busco_plots/*279*/ -o multiqc_busco_279_all &>> mtqc.log &
+multiqc busco_plots/*320-2*/ -o multiqc_busco_320-2_all &>> mtqc.log & *create multiqc summaries for busco analysis of all assemblies 
