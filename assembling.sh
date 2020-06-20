@@ -441,5 +441,23 @@ cd /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_as
 rm -rf *falcon*;rm -rf *v[0-9]*/ #remove the previous busco plots of falcon assemblies here due to replicated names of summary*.txt files which lead to confused multiqc search
 cp -rf ../../../../jiawei_zhao/LUfungiProject/pb-assembly/busco_plots279/*busco .
 cp -rf ../../../../jiawei_zhao/LUfungiProject/pb-assembly/busco_plots320-2/*busco . #copy again, we don't have replicated .txt names this time
+cd ..
 multiqc busco_plots/*279*/ -o multiqc_busco_279_all &>> mtqc.log &
 multiqc busco_plots/*320-2*/ -o multiqc_busco_320-2_all &>> mtqc.log & *create multiqc summaries for busco analysis of all assemblies 
+ls quast_279/*/*.tsv|while read tsv;do dir=$(echo $tsv|cut -d / -f 1-2);newname=$(echo $tsv|cut -d / -f 3|sed -r 's/.+\.tsv/report.tsv/');mv $tsv ${dir}/${newname};done
+ls quast_320-2/*/*.tsv|while read tsv;do dir=$(echo $tsv|cut -d / -f 1-2);newname=$(echo $tsv|cut -d / -f 3|sed -r 's/.+\.tsv/report.tsv/');mv $tsv ${dir}/${newname};done #in order to match the search pattern for quast reports of multiqc, filenames of .tsv files should be converted back
+cp -r ../../../jiawei_zhao/LUfungiProject/pb-assembly/pb_279*/*quast/ ./quast_279/
+cp -r ../../../jiawei_zhao/LUfungiProject/pb-assembly/pb_320*/*quast/ ./quast_320-2/
+conda deactivate
+conda activate py2
+ls -d quast_279/step*quast|while read falcon;do dir=$(echo $falcon|cut -d / -f 1);name=$(echo $falcon|cut -d / -f 2);mv $falcon ${dir}/pb_279_fc_${name};done
+ls -d quast_320-2/step*quast|while read falcon;do dir=$(echo $falcon|cut -d / -f 1);name=$(echo $falcon|cut -d / -f 2);mv $falcon ${dir}/pb_320-2_fc_${name};done #make the names of falcon-assemblies more recognizable
+cd /home2/jiawei_zhao/LUfungiProject/OriginalAssemblies
+nohup quast.py -o pb_279_ref_quast pb_279_Leuge.fasta &
+nohup quast.py -o pb_320-2_ref_quast pb_320-2_Mysco.fasta &
+cp -r pb_279_ref_quast ../../../shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/quast_279/
+cd /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/
+conda deactivate
+conda activate py3.6
+multiqc quast_279/*/report.tsv -o multiqc_quast_279_all &>> mtqcquast.log &
+multiqc quast_320-2/*/report.tsv -o multiqc_quast_320-2_all &>> mtqcquast.log & 
