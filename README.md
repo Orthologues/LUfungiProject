@@ -23,6 +23,9 @@
 + [**BUSCO**](#busco)
 ***
 [**Pipelines of analysis**](#pipelines)
++ [**Preliminary data-analysis & data-processing**](#preli)
++ [**Try different non-falcon long-read assemblers to generate genome assemblies**](#trydi)
++ [**Use pb-assembly(falcon and falcon-unzip) & genomicconsensus for assembling & polishing**](#falgen)
 ***
 
 <a name="intro0"></a>
@@ -280,6 +283,7 @@ In order to achieve achieve availability of my integrated pipeline scripts of [*
 
 - Follows the exact subdirectory & file structure and naming formats of my local repository. 
 
+<a name="preli"></a>
 ## Preliminary data-analysis & data-processing
 
 ```bash
@@ -323,8 +327,17 @@ nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_279_list/pb_279_
 nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_320-2_list/pb_320-2_bax_list${i}.txt -o bamfiles/pb_320-2/${i} --subread --allowUnrecognizedChemistryTriple;done' &
 wait 
 ```
+
+<a name="trydi"></a>
 ## Try different non-Falcon long-read assemblers to generate genome assemblies
 ```bash
 conda activate py2
 mkdir miniasmAssembly
+```
+
+<a name="falgen"></a>
+## Use pb-assembly(falcon and falcon-unzip) & genomicconsensus for assembling & polishing
+```bash
+conda activate py2
+mkdir pb-assembly
 ```
