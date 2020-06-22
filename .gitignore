@@ -20,3 +20,4 @@ pb-assembly/*
 !pb-assembly/integrated*.sh
 test1.sh
 count*
+multiqc*/multiqc_data
