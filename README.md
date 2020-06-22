@@ -2,6 +2,9 @@
 <p align="left">Litter decomposing fungi represent important agents of soil carbon cycling across terrestrial ecosystems ranging from tundra to tropical forests. The reasons behind the enormous success of litter decomposers are not well known, but it is reasonable to consider that this could be partly due to the diverse plant cell wall decomposition systems these fungi harbor. To examine the diversity of these systems in litter decomposers, we sequenced nine species with diverse habitat preferences from Agaricales, which represents one of the most species-rich order in mushroom forming fungi and in which many litter decomposers are found. All genomes were sequenced using PacBio and the assemblies of seven of these genomes were of good quality. However, the genome assemblies of Mycetinis scorodonius(Mysco, pb_320-2) and Leucopaxillus gentianeus(Leuge, pb_279) did not pass the strict quality standards, that we have set up in this project. The reasons for this could be related to the larger than expected genome size for both species in combination to their dikaryotic state. The successful genome assembly for the two species is of particular interest since both species are found exclusively on conifer litter and therefore, may harbor adaptations related to this recalcitrant type of substrate. Genome assembly tools for dikaryotic genomes are continuously improving, which poses a great opportunity to attempt again the assembly of the two remaining genomes using recently developed tools. </p>
 
 ***
+[**Rawdata-processing tools**](#intro0)
++ [**bax2bam**](#bax2bam)
+***
 [**Genome assemblers and polishers**](#intro1)
 + [**pb-assembly**](#pbasm)
 + [**pbmm2**](#pbmm2)
@@ -21,6 +24,20 @@
 ***
 [**Pipelines of analysis**](#pipelines)
 ***
+
+<a name="intro0"></a>
+# Introduction to software which would be used for preliminary data processing
+<a name="bax2bam"></a>
+## bax2bam
+bax2bam converts the legacy PacBio basecall format (bax.h5) into the BAM basecall format
+### Installation and help
+```bash
+conda create -n py3 python=3.7
+conda activate py3
+conda install -c bioconda bax2bam
+```
+### Official Github Page
+- [bax2bam](https://github.com/pacificbiosciences/bax2bam/)
 
 <a name="intro1"></a>
 # Introduction to software which would be used or tried for assembling genomes
@@ -99,7 +116,6 @@ Minipolish is a combined tool for .gfa genome assembly polishing, especially for
 ### Installation and help
 
 ```bash
-conda create --name py3 python=3.7
 conda activate py3
 conda install -c bioconda minipolish
 minipolish -h
@@ -252,4 +268,45 @@ busco -h
 
 <a name="pipelines"></a>
 # Pipelines of analysis
-First of all, the proposed file-tree of my local repository is shown here: [***tree.txt***](https://github.com/Orthologues/LUfungiProject/blob/master/tree.txt). In order to achieve achieve availability of my integrated pipeline scripts of [**assembling by falcon & quast analysis**](https://github.com/Orthologues/LUfungiProject/blob/master/pb-assembly/integrated_falcon_quast.sh) and of [**falcon-assembly busco analysis**](https://github.com/Orthologues/LUfungiProject/blob/master/pb-assembly/integrated_busco.sh), your local repository of a reproduced diploid genome-assembly project must be directly under your own home("\~/") directory on the server(system). In my own case here, my local "LUfungiProject" repository has a relative path as "\~/LUfungiProject".
+First of all, the file-tree of my local repository on the server is shown here: [***localRepoTree***](https://github.com/Orthologues/LUfungiProject/blob/master/LUfungiProject.tree). 
+
+What's more, the absolute path of the local directory on the server which stores all rawdata is "/home2/shared_bioinformatics_master_projects/agaricalesGenomes". The file-tree of this rawdata directory is shown here: [***rawdataDirTree***](https://github.com/Orthologues/LUfungiProject/blob/master/rawdata.tree).
+
+In order to achieve achieve availability of my integrated pipeline scripts of [**assembling by falcon & quast analysis**](https://github.com/Orthologues/LUfungiProject/blob/master/pb-assembly/integrated_falcon_quast.sh) and of [**falcon-assembly busco analysis**](https://github.com/Orthologues/LUfungiProject/blob/master/pb-assembly/integrated_busco.sh), your local repository of a reproduced diploid genome-assembly project must be fulfill the following requirements:
+
+- Is directly under your own home("\~/") directory on the server(system). In my own case here, my local "LUfungiProject" repository has a relative path as "\~/LUfungiProject".
+
+- Follows the exact subdirectory & file structure and naming formats of my local repository. 
+
+## Preliminary data-analysis & data-processing
+
+```bash
+cd ~/LUfungiProject
+conda activate py2
+mkdir fastqcReports #Create a directory which stores fastqcReports of subread files
+ls ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/*/*subreads/*|cut -d / -f 7|while read fungi_name;do mkdir ./fastqcReports/$fungi_name;done; #create a corresponding repository for each of the 4 given fungal species in "fastqcReports" directory
+nohup sh -c "ls fastqcReports/*|cut -d / -f 2|sed s/://g|while read name;do nohup fastqc --threads 20 -o ./fastqcReports/$name/ --extract -f fastq -c ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/$name/*reads/*.gz;done" & wait #Do fastqc analysis for the given raw subread file in fastq.gz format of each of the 4 fungal species 
+conda deactivate 
+conda activate py3.6 #multiqc must be run under this env
+nohup multiqc ./fastqcReports/ -o multiQCreport/ & wait #generate a integrated multiqc report from all the preceding fastqc reports of .fastq.gz subread files
+ln -s ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_279/filtered_subreads/pb_279_filtered_subreads.fastq.gz .
+ln -s ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_320-2/subreads/pb_320-2_filtered_subreads.fastq.gz .  #Create symbolic links for the 2 subread files in .fastq.gz which would be necessary later
+ln -s ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_279/rawdata/run1 pb_279_raw
+ln -s ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_320-2/raw/run1 pb_320-2_raw #Create symbolic links for the directories which contain .bax.h5 files which would be necessary to generate .bam files
+mkdir bamfiles #Create a directory which stores bamfiles converted by bax2bam from bax.h5 files
+ls pb_279_raw/*/Analysis_Results/*.bax.h5 >> pb_279_baxh5.txt
+ls pb_320-2_raw/*/Analysis_Results/*.bax.h5 >> pb_320-2_baxh5.txt #Create a general input list for all .bax.h5 files of each of the two fungal species  
+for i in {3..24..3};do sed -n "$(echo "$i-2"|bc),${i}p" < pb_279_baxh5.txt >> bamfiles/pb_279_list/pb_279_bax_list$(echo "$i/3"|bc).txt;done
+for i in {3..24..3};do sed -n "$(echo "$i-2"|bc),${i}p" < pb_320-2_baxh5.txt >> bamfiles/pb_320-2_list/pb_320-2_bax_list$(echo "$i/3"|bc).txt;done #Since each of the 2 species have 24 .bax.h5 files which are from 8 movies and each of the 8 movies have 3 .bax.h5 files, 2*8 bam files would be generated. Since bax2bam needs an file of .bax.h5 file names for producing every .bam file, 2 for-loops are used here to produce 2*8 files of file names     
+conda deactivate
+conda activate py3 
+nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_279_list/pb_279_bax_list${i}.txt -o bamfiles/pb_279/${i} --subread --allowUnrecognizedChemistryTriple;done' &
+nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_320-2_list/pb_320-2_bax_list${i}.txt -o bamfiles/pb_320-2/${i} --subread --allowUnrecognizedChemistryTriple;done' &
+wait #Use bax2bam to generate .bam files which would be necessary for pb-assembly(Falcon)
+```
+## Try different non-Falcon long-read assemblers to generate genome assemblies
+```bash
+conda deactivate
+conda activate py2
+mkdir miniasmAssembly
+```
