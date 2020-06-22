@@ -289,21 +289,29 @@ In order to achieve achieve availability of my integrated pipeline scripts of [*
 ```bash
 cd ~/LUfungiProject
 
+## FASTQC 
 mkdir fastqcReports #Create a directory which stores fastqcReports of subread files
 #create a corresponding repository for each of the 4 given fungal species in "fastqcReports" directory
 ls ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/*/*subreads/*|cut -d / -f 7|while read fungi_name;do mkdir ./fastqcReports/$fungi_name;done; 
 #Do fastqc analysis for the given raw subread file in fastq.gz format of each of the 4 fungal species 
 conda activate py2
-nohup sh -c "ls fastqcReports/*|cut -d / -f 2|sed s/://g|while read name;do nohup fastqc --threads 20 -o ./fastqcReports/$name/ --extract -f fastq -c ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/$name/*reads/*.gz;done" & wait 
-
+nohup sh -c 'ls fastqcReports/*|cut -d / -f 2|sed s/://g|while read name;do nohup fastqc --threads 20 -o ./fastqcReports/$name/ --extract -f fastq -c ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/$name/*reads/*.gz;done' & wait 
 #generate a integrated multiqc report from all the preceding fastqc reports of .fastq.gz subread files
 conda activate py3.6 #multiqc must be run under this env
 nohup multiqc ./fastqcReports/ -o multiQCreport/ & wait 
 
+## SUBREAD FILES
 #Create symbolic links for the 2 subread files in .fastq.gz which would be necessary later
 ln -s ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_279/filtered_subreads/pb_279_filtered_subreads.fastq.gz .
 ln -s ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_320-2/subreads/pb_320-2_filtered_subreads.fastq.gz .  
+#Convert .fastq.gz files to .fasta files as required
+nohup less pb_279_filtered_subreads.fastq.gz|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_279_filtered_subreads.fasta &
+nohup less pb_320-2_filtered_subreads.fastq.gz|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_320-2_filtered_subreads.fasta &
+wait
+#Calculate the sequence length distribution of .fasta files
+nohup sh -c 'ls *.fasta|while read file;do nohup awk -v file="$file"  '/^[^>]/ {sum++;for(i=2000;i<=20000;i+=1000){if(length($0)>=i){qualified[(i-2000)/1000]++}}} END{print sum >> "lenstat.txt";for(i=0;i<=18;i++){printf("%d - %.2f\n",i*1000+2000,qualified[i]/sum*100) >> "lenstat.txt"}}' $file;done' & wait
 
+## REFERENCE ASSEMBLIES
 #Concatenate the primary-contig.fasta file and the associate-contig.fasta file of each of the two fungi into a reference assembly
 mkdir OriginalAssemblies
 cat /home2/shared_bioinformatics_master_projects/agaricalesGenomes/genome_assemblies/pb_279_Leuge/not_polished/*.fa >
@@ -311,6 +319,7 @@ OriginalAssemblies/pb_279_Leuge.fasta
 cat /home2/shared_bioinformatics_master_projects/agaricalesGenomes/genome_assemblies/pb_320-2_Mysco/not_polished/*.fa >
 OriginalAssemblies/pb_320-2_Mysco.fasta
 
+## BAX2BAM
 #Create symbolic links for the directories which contain .bax.h5 files which would be necessary to generate .bam files
 ln -s ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_279/rawdata/run1 pb_279_raw
 ln -s ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_320-2/raw/run1 pb_320-2_raw 
@@ -323,16 +332,41 @@ for i in {3..24..3};do sed -n "$(echo "$i-2"|bc),${i}p" < pb_279_baxh5.txt >> ba
 for i in {3..24..3};do sed -n "$(echo "$i-2"|bc),${i}p" < pb_320-2_baxh5.txt >> bamfiles/pb_320-2_list/pb_320-2_bax_list$(echo "$i/3"|bc).txt;done 
 #Use bax2bam to generate .bam files which would be necessary for pb-assembly(Falcon)
 conda activate py3 
-nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_279_list/pb_279_bax_list${i}.txt -o bamfiles/pb_279/${i} --subread --allowUnrecognizedChemistryTriple;done' &
-nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_320-2_list/pb_320-2_bax_list${i}.txt -o bamfiles/pb_320-2/${i} --subread --allowUnrecognizedChemistryTriple;done' &
+nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_279_list/pb_279_bax_list${i}.txt -o bamfiles/pb_279/${i} --subread;done' &
+nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_320-2_list/pb_320-2_bax_list${i}.txt -o bamfiles/pb_320-2/${i} --subread;done' &
 wait 
 ```
 
 <a name="trydi"></a>
 ## Try different non-Falcon long-read assemblers to generate genome assemblies
 ```bash
+## MINIASM
 conda activate py2
 mkdir miniasmAssembly
+#find overlaps by all-vs-all self-mappings via minimap2
+nohup minimap2 -x ava-pb -t 15 pb_279_filtered_subreads.fastq.gz pb_279_filtered_subreads.fastq.gz|gzip -1 >miniasmAssembly/pb_279_default.paf.gz &
+nohup minimap2 -x ava-pb -t 15 pb_320-2_filtered_subreads.fastq.gz pb_320-2_filtered_subreads.fastq.gz|gzip -1 >miniasmAssembly/pb_320-2_default.paf.gz &
+wait
+#Layout using Miniasm
+nohup sh -c 'ls miniasmAssembly/*|while read paf;do name=$(echo $paf|cut -d / -f 2|cut -d . -f 1|cut -d _ -f 1,2);nohup miniasm -f $name*.fastq.gz $paf > ./miniasmAssembly/${name}_miniasm_unpolished.gfa;done' & wait
+#Convert .gfa files to .fasta files
+awk '/^S/{print ">"$2"\n"$3}' miniasmAssembly/pb_279_miniasm_unpolished.gfa > miniasmAssembly/pb_279_miniasm_unpolished.fasta
+awk '/^S/{print ">"$2"\n"$3}' miniasmAssembly/pb_320-2_miniasm_unpolished.gfa > miniasmAssembly/pb_320-2_miniasm_unpolished.fasta
+#Assembly polishing by minipolish(nohup shouldn't be used here since it would redirect stdout to the .gfa file)
+conda activate py3
+minipolish -t 15 --pacbio pb_279_filtered_subreads.fastq.gz miniasmAssembly/pb_279_miniasm_unpolished.gfa > miniasmAssembly/pb_279_miniasm_polished.gfa &
+minipolish -t 15 --pacbio pb_320-2_filtered_subreads.fastq.gz miniasmAssembly/pb_320-2_miniasm_unpolished.gfa > miniasmAssembly/pb_320-2_miniasm_polished.gfa &
+wait
+# Convert .gfa to .fasta
+awk '/^S/{print ">"$2"\n"$3}' miniasmAssembly/pb_279_miniasm_polished.gfa > miniasmAssembly/pb_279_miniasm_polished.fasta
+awk '/^S/{print ">"$2"\n"$3}' miniasmAssembly/pb_320-2_miniasm_polished.gfa > miniasmAssembly/pb_320-2_miniasm_polished.fasta
+
+## RAVEN
+mkdir ravenAssembly
+conda activate py3
+#Genome assembling and polishing by raven with default setting
+nohup sh -c 'ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1|cut -d _ -f 1-2);nohup raven --graphical-fragment-assembly ravenAssembly/${name}_raven_default.gfa  -t 20 $fastq;echo $name;done' & wait 
+#change the alignment parameters
 ```
 
 <a name="falgen"></a>
