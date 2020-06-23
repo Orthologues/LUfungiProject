@@ -410,20 +410,24 @@ rm -rf canuAssembly
 cd ~/LUfungiProject
 conda activate py2
 mkdir pb-assembly
-#Create a repository which stores configuration files of falcon-assembler(fc_run.py) and falcon-unzip(fc_unzip.py)
+#Create a repository which stores configuration files of falcon-assembler(fc_run.py) and falcon-unzip(fc_unzip.py) & falcon-phase(fc_phase.py)
 mkdir pb-assembly/mycfgs/
-```
-My configuration files can be viewed [***here***](https://github.com/Orthologues/LUfungiProject/tree/master/pb-assembly/mycfgs). 'v1' means version1, 'v2' means version2, etc.
-```bash
 #Create .fofn files which contain paths of .fasta and .bam files for falcon & falcon-unzip
 cd pb-assembly
 ls ../bamfiles/pb_279/*subreads.bam|while read bam;do echo $bam >> pb_279_bam.fofn;done
 ls ../bamfiles/pb_320-2/*subreads.bam|while read bam;do echo $bam >> pb_320-2_bam.fofn;done
 echo "../pb_279_filtered_subreads.fasta" >> pb_279_fa.fofn 
 echo "../pb_320-2_filtered_subreads.fasta" >> pb_320-2_fa.fofn 
+```
+Paths of the .fofn files which were created above would be filled into my configuration files as one of their compulsory parameters. My configuration files can be viewed [***here***](https://github.com/Orthologues/LUfungiProject/tree/master/pb-assembly/mycfgs). 'v1' means version1, 'v2' means version2, etc.
+```bash
 #Create a corresponding working directoriy for each of the fc_pb* configuration files.
 for i in {1..2};do mkdir pb_279_v${i}/;done
 for i in {1..3};do mkdir pb_320-2_v${i}/;done
+```
+There are multiple working directories and the pipeline of assembly from each .cfg file is relatively complicated. Therefore, I would like to use only one of my working directories - 'pb_279_v2' as an example to show the pipeline of assembly
+```bash
+cd pb_279_v2
 ```
 
 <a name="quabus"></a>
