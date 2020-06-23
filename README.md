@@ -26,6 +26,7 @@
 + [**Preliminary data-analysis & data-processing**](#preli)
 + [**Try different non-falcon long-read assemblers to generate genome assemblies**](#trydi)
 + [**Use pb-assembly(falcon and falcon-unzip) & genomicconsensus for assembling & polishing**](#falgen)
++ [**Assembly evaluation by QUAST & BUSCO**](#quabus)
 ***
 
 <a name="intro0"></a>
@@ -374,4 +375,11 @@ nohup sh -c 'ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1|
 ```bash
 conda activate py2
 mkdir pb-assembly
+```
+
+<a name="quabus"></a>
+## Assembly evaluation by QUAST & BUSCO
+```bash
+conda activate py2
+conda activate busco
 ```
