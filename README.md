@@ -384,9 +384,22 @@ ls ravenAssembly/*.gfa|while read gfa;do name=$(echo $gfa|cut -d . -f 1);awk '/^
 ## FLYE
 mkdir flyeAssembly
 #'genome-size' here are set according to the sizes of corresponding reference assemblies 
-nohup flye --pacbio-raw pb_279_filtered_subreads.fastq.gz --genome-size 74m --out-dir flyeAssembly/default/pb_279/ --threads 15 &
-nohup flye --pacbio-raw pb_320-2_filtered_subreads.fastq.gz --genome-size 137m --out-dir flyeAssembly/default/pb_320-2/ --threads 15 &
+nohup flye --pacbio-raw pb_279_filtered_subreads.fastq.gz --genome-size 74m --out-dir flyeAssembly/pb_279_default/ --threads 15 &
+nohup flye --pacbio-raw pb_320-2_filtered_subreads.fastq.gz --genome-size 137m --out-dir flyeAssembly/pb_320-2_default/ --threads 15 &
 wait
+#rename and move flye assemblies
+mv flyeAssembly/pb_279_default/assembly.fasta flyeAssembly/pb_279_flye_default.fasta
+mv flyeAssembly/pb_279_default/assembly.gfa flyeAssembly/pb_279_flye_default.gfa
+mv flyeAssembly/pb_320-2_default/assembly.fasta flyeAssembly/pb_320-2_flye_default.fasta
+mv flyeAssembly/pb_320-2_default/assembly.gfa flyeAssembly/pb_320-2_flye_default.gfa
+
+## CANU
+#'genome-size' here are set according to the sizes of corresponding reference assemblies 
+nohup canu -p pb_279 -d canuAssembly/pb_279_default/ genomeSize=74m errorRate=0.3 gnuplotTested=true -pacbio-raw pb_279_filtered_subreads.fastq.gz 
+nohup canu -p pb_320-2 -d canuAssembly/pb_320-2_default/ genomeSize=137m errorRate=0.3 gnuplotTested=true -pacbio-raw pb_320-2_filtered_subreads.fastq.gz 
+#Unfortunately, CANU had taken too much time and memories so I decided to abort it
+pkill canu
+rm -rf canuAssembly
 ```
 
 <a name="falgen"></a>
