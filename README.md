@@ -366,8 +366,27 @@ awk '/^S/{print ">"$2"\n"$3}' miniasmAssembly/pb_320-2_miniasm_polished.gfa > mi
 mkdir ravenAssembly
 conda activate py3
 #Genome assembling and polishing by raven with default setting
-nohup sh -c 'ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1|cut -d _ -f 1-2);nohup raven --graphical-fragment-assembly ravenAssembly/${name}_raven_default.gfa  -t 20 $fastq;echo $name;done' & wait 
+nohup sh -c 'ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1|cut -d _ -f 1-2);nohup raven --graphical-fragment-assembly ravenAssembly/${name}_raven_default.gfa  -t 20 $fastq;done' & wait 
 #change the alignment parameters
+#match score=2, mismatch penalty=-6, gap penalty=-4, polishing iterations=2
+nohup sh -c 'ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1|cut -d _ -f 1-2);nohup raven -m 2 -n -6 -g -4  --graphical-fragment-assembly ravenAssembly/${name}_raven_m2n-6g-4p2.gfa  -t 20 $fastq;done' & wait 
+#match score=3, mismatch penalty=-5, gap penalty=-4, polishing iterations=3
+nohup sh -c 'ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1|cut -d _ -f 1-2);nohup raven -p 3 -m 3 -n -5 -g -4 --graphical-fragment-assembly ravenAssembly/${name}_raven_m3n-5g-4p3.gfa -t 20 $fastq;done' & wait 
+#match score=2, mismatch penalty=-6, gap penalty=-4, polishing iterations=3
+nohup sh -c 'ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1|cut -d _ -f 1-2);nohup raven -p 3 -m 2 -n -6 -g -4 --graphical-fragment-assembly ravenAssembly/${name}_raven_m2n-6g-4p3.gfa -t 20 $fastq;done' & wait 
+#match score=2, mismatch penalty=-6, gap penalty=-4, polishing iterations=1
+nohup sh -c 'ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1|cut -d _ -f 1-2);nohup raven -p 1 -m 2 -n -6 -g -4 --graphical-fragment-assembly ravenAssembly/${name}_raven_m2n-6g-4p1.gfa -t 20 $fastq;done' & wait 
+#match score=3, mismatch penalty=-5, gap penalty=-4, polishing iterations=1
+nohup sh -c 'ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1|cut -d _ -f 1-2);nohup raven -p 1 -m 3 -n -5 -g -4 --graphical-fragment-assembly ravenAssembly/${name}_raven_m3n-5g-4p1.gfa -t 20 $fastq;done' & wait 
+#convert all .gfa files into .fasta files
+ls ravenAssembly/*.gfa|while read gfa;do name=$(echo $gfa|cut -d . -f 1);awk '/^S/{print ">"$2"\n"$3}' $gfa > ${name}.fasta;done
+
+## FLYE
+mkdir flyeAssembly
+#'genome-size' here are set according to the sizes of corresponding reference assemblies 
+nohup flye --pacbio-raw pb_279_filtered_subreads.fastq.gz --genome-size 74m --out-dir flyeAssembly/default/pb_279/ --threads 15 &
+nohup flye --pacbio-raw pb_320-2_filtered_subreads.fastq.gz --genome-size 137m --out-dir flyeAssembly/default/pb_320-2/ --threads 15 &
+wait
 ```
 
 <a name="falgen"></a>
