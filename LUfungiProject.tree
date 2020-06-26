@@ -1,9 +1,12 @@
 .
+├── assembling.sh
 ├── bamfiles
 │   ├── pb_279
 │   ├── pb_279_list
 │   ├── pb_320-2
 │   └── pb_320-2_list
+├── countDone279.txt
+├── countDone320-2.txt
 ├── DagREADME
 ├── fastqcReports
 │   ├── pb_279
@@ -11,9 +14,26 @@
 │   ├── pb_320-2
 │   └── pb_337-2
 ├── flyeAssembly
+│   ├── pb_279_default
+│   ├── pb_279_flye_default.fasta
+│   ├── pb_279_flye_default.gfa
+│   ├── pb_320-2_default
+│   ├── pb_320-2_flye_default.fasta
+│   └── pb_320-2_flye_default.gfa
 ├── genome_assemblies -> /home2/shared_bioinformatics_master_projects/agaricalesGenomes/genome_assemblies
 ├── lenstat.txt
+├── LUfungiProject.tree
 ├── miniasmAssembly
+│   ├── pb_279_default.paf.gz
+│   ├── pb_279_miniasm_polished.fasta
+│   ├── pb_279_miniasm_polished.gfa
+│   ├── pb_279_miniasm_unpolished.fasta
+│   ├── pb_279_miniasm_unpolished.gfa
+│   ├── pb_320-2_default.paf.gz
+│   ├── pb_320-2_miniasm_polished.fasta
+│   ├── pb_320-2_miniasm_polished.gfa
+│   ├── pb_320-2_miniasm_unpolished.fasta
+│   └── pb_320-2_miniasm_unpolished.gfa
 ├── multiQCreports
 │   ├── multiqc_data
 │   └── multiqc_report.html
@@ -23,9 +43,11 @@
 │   ├── pb_279_Leuge -> ../../../../shared_bioinformatics_master_projects/agaricalesGenomes/genome_assemblies/pb_279_Leuge/
 │   ├── pb_279_Leuge.fasta
 │   ├── pb_279_ref_busco
+│   ├── pb_279_ref_quast
 │   ├── pb_320-2_Mysco -> ../../../../shared_bioinformatics_master_projects/agaricalesGenomes/genome_assemblies/pb_320-2_Mysco/
 │   ├── pb_320-2_Mysco.fasta
-│   └── pb_320-2_ref_busco
+│   ├── pb_320-2_ref_busco
+│   └── pb_320-2_ref_quast
 ├── pb_279_baxh5.txt
 ├── pb_279_filtered_subreads.fasta
 ├── pb_279_filtered_subreads.fastq.gz -> ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_279/filtered_subreads/pb_279_filtered_subreads.fastq.gz
@@ -35,15 +57,19 @@
 ├── pb_320-2_filtered_subreads.fastq.gz -> ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_320-2/subreads/pb_320-2_filtered_subreads.fastq.gz
 ├── pb_320-2_raw -> ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_320-2/raw/run1/
 ├── pb-assembly
+│   ├── assembly.sh
 │   ├── busco_plots279
-│   ├── cfgs
+│   ├── busco_plots320-2
+│   ├── countDone279_busco.txt
+│   ├── countDone320-2_busco.txt
 │   ├── fastqcReports
-│   ├── mtqc.log
+│   ├── integrated_busco.sh
+│   ├── integrated_falcon_quast.sh
 │   ├── multiqc_busco279
+│   ├── multiqc_busco320-2
 │   ├── multiqc_quast279
 │   ├── multiqc_quast320-2
 │   ├── mycfgs
-│   ├── nohup.out
 │   ├── pb_279_bam.fofn
 │   ├── pb_279_fa.fofn
 │   ├── pb_279_v1
@@ -52,10 +78,33 @@
 │   ├── pb_320-2_fa.fofn
 │   ├── pb_320-2_v1
 │   ├── pb_320-2_v2
-│   ├── pb_320-2_v3
-│   └── scripts
+│   └── pb_320-2_v3
 ├── ravenAssembly
-├── README.md
-└── tree.txt
+│   ├── pb_279_raven_default.fasta
+│   ├── pb_279_raven_default.gfa
+│   ├── pb_279_raven_m2n-6g-4p1.fasta
+│   ├── pb_279_raven_m2n-6g-4p1.gfa
+│   ├── pb_279_raven_m2n-6g-4p2.fasta
+│   ├── pb_279_raven_m2n-6g-4p2.gfa
+│   ├── pb_279_raven_m2n-6g-4p3.fasta
+│   ├── pb_279_raven_m2n-6g-4p3.gfa
+│   ├── pb_279_raven_m3n-5g-4p1.fasta
+│   ├── pb_279_raven_m3n-5g-4p1.gfa
+│   ├── pb_279_raven_m3n-5g-4p3.fasta
+│   ├── pb_279_raven_m3n-5g-4p3.gfa
+│   ├── pb_320-2_raven_default.fasta
+│   ├── pb_320-2_raven_default.gfa
+│   ├── pb_320-2_raven_m2n-6g-4p1.fasta
+│   ├── pb_320-2_raven_m2n-6g-4p1.gfa
+│   ├── pb_320-2_raven_m2n-6g-4p2.fasta
+│   ├── pb_320-2_raven_m2n-6g-4p2.gfa
+│   ├── pb_320-2_raven_m2n-6g-4p3.fasta
+│   ├── pb_320-2_raven_m2n-6g-4p3.gfa
+│   ├── pb_320-2_raven_m3n-5g-4p1.fasta
+│   ├── pb_320-2_raven_m3n-5g-4p1.gfa
+│   ├── pb_320-2_raven_m3n-5g-4p3.fasta
+│   └── pb_320-2_raven_m3n-5g-4p3.gfa
+├── rawdata.tree
+└── README.md
 
-36 directories, 22 files
+40 directories, 67 files
