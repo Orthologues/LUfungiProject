@@ -52,11 +52,11 @@ Because of the dikaryotic nature of these two fungi, a chronological combination
 Since I have encountered the same issue when using falcon-unzip as the unsolved issue here shows, 
 
 <a name="error"></a>
-## An unsolved error
+### An unsolved error
 - [Error at 4-polish](https://github.com/PacificBiosciences/FALCON_unzip/issues/159)
 
 <a name="solution"></a>
-### A compromised solution
+### The compromise solution for the unsolved error above
 I decided to concatenate the .fasta file of primary contigs and the .fasta file of haplotype contigs into a reference assembly file. Both the primary-contig file and the haplotype-contig file were output from the successful '3-unzip' step of falcon-unzip. Thus, the concatenated .fasta file would be used as a reference input for [***pbmm2***](#pbmm2) & for + [***genomicconsensus***](#gcc) in order to generate a polished consensus .fasta file. Unfortunately, it would be impossible to use falcon-phase then. As a result, the consensus .fasta file would be considered as the final assembly. In order to access more detailed descriptions of PacBio SMRT tools, an online tutorial is available at [***SMRTtools***](https://www.pacb.com/wp-content/uploads/SMRT_Tools_Reference_Guide_v700.pdf).  
 
 <a name="pbasm"></a>
@@ -437,7 +437,7 @@ nohup fc_run ../mycfgs/fc_pb_279_v2.cfg &> run0.log & wait
 #run falcon-unzip
 nohup fc_unzip.py ../mycfgs/fc_unzip_pb_279.cfg &> run1.std &
 ```
-However, since fc_unzip would exit with error as [***here***](#error) states, I have to follow the compromise solution [***here***](#solution). The following bash commands describe how this compromise solution would be reached:
+However, since fc_unzip would exit with an error which is stated [***here***](#error), I have to follow the compromise solution [***here***](#solution). The following bash commands describe how this compromise solution would be reached:
 ```bash
 # In order to save disk space, extract only .fa files out and delete the intermediate folders
 mv 2-asm-falcon/*.fa .
