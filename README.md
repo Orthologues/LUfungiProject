@@ -491,6 +491,9 @@ multiqc busco_plots320-2/ -o multiqc_busco320-2 &>> mtqc.log &
 multiqc pb_320-2_*/*quast/report.tsv -o multiqc_quast320-2 &>> mtqc.log &
 multiqc pb_279_*/*quast/report.tsv -o multiqc_quast279 &>> mtqc.log &
 wait
+# Create a directory under the main repository to store all complete busco analysis folders
+mkdir ../busco_all
+cp -r busco_plots*/*/ ../busco_all/
 ```
 Attention: [**integrated_busco.sh**](https://github.com/Orthologues/LUfungiProject/blob/master/pb-assembly/integrated_busco.sh) is an integrated bash script which runs automatic and parallel busco analysis for all the finished falcon-assemblies under the folder "pb-assembly". The script must be run after [**integrated_falcon_quast.sh**](https://github.com/Orthologues/LUfungiProject/blob/master/pb-assembly/integrated_falcon_quast.sh) commands are properly finished, otherwise it wouldn't work.
 
@@ -498,6 +501,19 @@ Attention: [**integrated_busco.sh**](https://github.com/Orthologues/LUfungiProje
 ## Do busco analysis for the assemblies from non-falcon assemblers
 cd ~/LUfungiProject/
 conda activate busco
+#find out how many .fasta assemblies are yet to be analyzed
+find -mindepth 2 -maxdepth 2 -name "*.fasta"|wc -l
+# Run busco analysis for the reference genomes
+cd ~/LUfungiProject/OriginalAssemblies/
+nohup busco -m genome -i pb_279_Leuge.fasta -o pb_279_ref_busco -l fungi_odb10 & sleep 10
+nohup busco -m genome -i pb_320-2_Mysco.fasta -o pb_320-2_ref_busco -l fungi_odb10 & sleep 10
+wait
+find -maxdepth 2 -name "*busco.txt"|while read txt;do dir=$(echo $txt|cut -d / -f 1-2);mkdir ${dir}/summary;mv $txt ${dir}/summary;nohup generate_plot.py -wd ${dir}/summary/;done 
+find -name "*summary"|while read dir;do name=$(echo $dir|cut -d / -f 2);pardir=$(echo $dir|cut -d / -f 1-2);newname=$(echo ${pardir}/$name);mv $dir $newname;done
+cp -r */*_busco/ ../busco_all/
+
+# Run busco analysis for other non-falcon assemblies
+cd ~/LUfungiProject/
 
 
 ## Do quast analysis for the assemblies from non-falcon assemblers
