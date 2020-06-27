@@ -47,11 +47,11 @@ else
   fi
 fi
 echo "Your input is successful!"
-rm ~/${parR}countDone${parN}.txt
-touch ~/${parR}countDone${parN}.txt
+# rm ~/${parR}countDone${parN}.txt
+# touch ~/${parR}countDone${parN}.txt
 cd ~/${parR}pb-assembly/
 versions=$(find -maxdepth 1 -name "pb_${parN}_v*"|wc -l);
-for ((i=1;i<=$versions;i++))
+for ((i=4;i<=$versions;i++))
 do
 ( cd ~/${parR}pb-assembly/pb_${parN}_v${i}
   nohup fc_run.py ../mycfgs/fc_pb_${parN}_v${i}.cfg &> run0.log &
