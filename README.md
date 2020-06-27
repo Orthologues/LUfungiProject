@@ -508,10 +508,56 @@ do
   count=$(cat countDone.txt|wc -l)
 done
 rm ~/LUfungiProject/countDone.txt
+# Generalize the busco-plotting pipeline
+cd ~/LUfungiProject/pb-assembly/
+mkdir busco_plots
+cd busco_plots
+ls ../*/step*_busco/*.txt|while read txt;do name=$(echo $txt|cut -d / -f 2-3|tr -d \/|sed 's/step/_step/');echo $name;mkdir $name;cp $txt $name;done
+nohup sh -c 'ls *busco/|grep ^pb|sed 's/://'|while read dir;do nohup generate_plot.py -wd $dir;done' & wait
+rm *.log
+mv *_busco/ /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/busco_plots/
+# Run busco analysis for the reference genomes
+cd ~/LUfungiProject/OriginalAssemblies/
+nohup busco -m genome -i pb_279_Leuge.fasta -o pb_279_ref_busco -l fungi_odb10 &
+nohup busco -m genome -i pb_320-2_Mysco.fasta -o pb_320-2_ref_busco -l fungi_odb10 &
+wait
+find -maxdepth 2 -name "*busco.txt"|while read txt;do dir=$(echo $txt|cut -d / -f 1-2);mkdir ${dir}/summary;mv $txt ${dir}/summary;nohup generate_plot.py -wd ${dir}/summary/;done 
+find -name "*summary"|while read dir;do name=$(echo $dir|cut -d / -f 2);pardir=$(echo $dir|cut -d / -f 1-2);newname=$(echo ${pardir}/$name);mv $dir $newname;done
+mv */*_busco/ /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/busco_plots/
 
 ## Do quast analysis for falcon assemblies of different stages
 cd ~/LUfungiProject/pb-assembly
 conda activate py2
+touch ~/LUfungiProject/countDone.txt
+versions1=$(find -maxdepth 1 -name "pb_279_v*"|wc -l);
+versions2=$(find -maxdepth 1 -name "pb_320-2_v*"|wc -l);
+for ((i=1;i<=$versions1;i++))
+do
+( cd ~/LUfungiProject/pb-assembly/pb_279_v${i}
+  nohup quast.py -o step2_v${i}_quast/  pb_279_falcon_step2_v${i}.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 &
+  nohup quast.py -o step3_v${i}_quast/  pb_279_falcon_step3_v${i}.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 &
+  nohup quast.py -o step4_v${i}_quast/  pb_279_step3_v${i}_polished.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 & 
+  wait
+  echo "Done" >> ../../countDone.txt ) &
+done 
+for ((k=1;k<=$versions2;k++))
+do
+( cd ~/LUfungiProject/pb-assembly/pb_320-2_v${k}
+  nohup quast.py -o step2_v${k}_quast/ pb_320-2_falcon_step2_v${k}.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
+  nohup quast.py -o step3_v${k}_quast/ pb_320-2_falcon_step3_v${k}.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
+  nohup quast.py -o step4_v${k}_quast/ pb_320-2_step3_v${k}_polished.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 & 
+  wait
+  echo "Done" >> ../../countDone.txt ) &
+done 
+cd ~/LUfungiProject/
+sum=$(($versions1+$versions2))
+count=$(cat countDone.txt|wc -l)
+while [ ! "$count" == "$sum" ]
+do 
+  sleep 10
+  count=$(cat countDone.txt|wc -l)
+done
+rm ~/LUfungiProject/countDone.txt
 
 ## Do busco analysis for the assemblies from non-falcon assemblers
 conda activate busco
