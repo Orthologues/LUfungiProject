@@ -461,7 +461,7 @@ wait
 nohup cat pb_279_step3_v2_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_279_step3_v2_polished.fasta &  
 wait
 ```
-Alternatively, you may have finished writing all .cfg files at once. All these fc_run configuration files have to under "pb-assembly/mycfgs/" subfolder of the main repository and use the naming format as 'fc_pb_${parN}_v${i}.cfg' (for example, $parN in my project here is either 279 or 320-2 and $i denotes the version number, it may be one of the integer 1, 2 or 3 in my project here).
+Alternatively, you may have finished writing all .cfg files at once. All these fc_run configuration files have to under "pb-assembly/mycfgs/" subfolder of the main repository and use the naming format as 'fc_pb_${parN}_v${i}.cfg' (for example, $parN in my project here is either 279 or 320-2; $i denotes the version number, it may be one of the integer 1, 2 or 3 in my project here).
 
 What's more, an fc_unzip configuration file whose name is in the format 'fc_unzip_pb_${parN}.cfg' has to be created under the 'pb-assembly/mycfgs/' subfolder as well.
 
@@ -473,15 +473,50 @@ After all these preparations, it's time to run the integrated script [**assembli
 <a name="quabus"></a>
 ## Assembly evaluation by QUAST & BUSCO and integration by multiqc
 ```bash
-# Do busco analysis for falcon assemblies of different stages
+## Do busco analysis for falcon assemblies of different stages
+#Create a .txt file to record how many different versions of assemblies have got their own busco analysis done 
+touch ~/LUfungiProject/countDone.txt 
 cd ~/LUfungiProject/pb-assembly
 conda activate busco
-# Do quast analysis for falcon assemblies of different stages
+versions1=$(find -maxdepth 1 -name "pb_279_v*"|wc -l);
+versions2=$(find -maxdepth 1 -name "pb_320-2_v*"|wc -l);
+for ((i=1;i<=$versions1;i++))
+do
+( cd ~/LUfungiProject/pb-assembly/pb_279_v${i}
+  nohup busco -m genome -i pb_279_falcon_step2_v${i}.fasta -o step2_busco -l fungi_odb10 & sleep 10
+  nohup busco -m genome -i pb_279_falcon_step3_v${i}.fasta -o step3_busco -l fungi_odb10 & sleep 10
+  nohup busco -m genome -i pb_279_step3_v${i}_polished.fasta -o step4_busco -l fungi_odb10 & sleep 10
+  wait
+  echo "Done" >> ../../countDone.txt ) &
+done 
+for ((k=1;k<=$versions2;k++))
+do
+( cd ~/LUfungiProject/pb-assembly/pb_320-2_v${k}
+  nohup busco -m genome -i pb_320-2_falcon_step2_v${k}.fasta -o step2_busco -l fungi_odb10 & sleep 10
+  nohup busco -m genome -i pb_320-2_falcon_step3_v${k}.fasta -o step3_busco -l fungi_odb10 & sleep 10
+  nohup busco -m genome -i pb_320-2_step3_v${k}_polished.fasta -o step4_busco -l fungi_odb10 & sleep 10
+  wait
+  echo "Done" >> ../../countDone.txt ) & 
+done 
+cd ~/LUfungiProject/
+sum=$(($versions1+$versions2))
+count=$(cat countDone.txt|wc -l)
+# As long as not every version of assemblies has got its busco analysis done, the 'while' loop would reiterate and the pipeline wouldn't proceed
+while [ ! "$count" == "$sum" ]
+do 
+  sleep 10
+  count=$(cat countDone.txt|wc -l)
+done
+rm ~/LUfungiProject/countDone.txt
+
+## Do quast analysis for falcon assemblies of different stages
 cd ~/LUfungiProject/pb-assembly
 conda activate py2
-# Do busco analysis for the assemblies from non-falcon assemblers
+
+## Do busco analysis for the assemblies from non-falcon assemblers
 conda activate busco
-# Do quast analysis for the assemblies from non-falcon assemblers
+
+## Do quast analysis for the assemblies from non-falcon assemblers
 conda activate py2
 # Integration of busco & quast reports by multiqc
 conda activate py3.6
