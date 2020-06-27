@@ -500,8 +500,6 @@ Attention: [**integrated_busco.sh**](https://github.com/Orthologues/LUfungiProje
 ```bash
 cd ~/LUfungiProject/
 conda activate busco
-# find out how many .fasta assemblies are yet to be analyzed
-find -mindepth 2 -maxdepth 2 -name "*.fasta"|wc -l
 
 ## Run busco analysis for the reference genomes
 cd ~/LUfungiProject/OriginalAssemblies/
@@ -560,7 +558,10 @@ cp -r pb*/*_busco/ ../busco_all/
 ## Do quast analysis for the assemblies from non-falcon assemblers
 cd ~/LUfungiProject/
 conda activate py2
-
+# Create a directory to store results of quast analysis
+mkdir quast_all
+# find out how many .fasta assemblies are yet to be analyzed by quast
+find -mindepth 2 -maxdepth 2 -name "*.fasta"|wc -l #the answer here is 20
 
 ## Integration of busco & quast reports by multiqc
 cd ~/LUfungiProject/
