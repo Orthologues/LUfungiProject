@@ -433,16 +433,25 @@ There are multiple working directories and the pipeline of assembly from each .c
 ```bash
 cd pb_279_v2
 #run falcon-assembly
-nohup fc_run ../mycfgs/fc_pb_279_v2.cfg &> run0.log & wait 
+nohup fc_run.py  ../mycfgs/fc_pb_279_v2.cfg &> run0.log & wait 
 #run falcon-unzip
 nohup fc_unzip.py ../mycfgs/fc_unzip_pb_279.cfg &> run1.std &
 ```
 However, since fc_unzip would exit with an error which is stated [***here***](#error), I have to follow the compromise solution [***here***](#solution). The following bash commands describe how this compromise solution would be reached:
 ```bash
+cat 2-asm-falcon/p_ctg.fa 2-asm-falcon/a_ctg.fa > pb_279_falcon_step2_v2.fasta
+cat 3-unzip/all_p_ctg.fa 3-unzip/all_h_ctg.fa > pb_279_falcon_step3_v2.fasta
 # In order to save disk space, extract only .fa files out and delete the intermediate folders
 mv 2-asm-falcon/*.fa .
 mv 3-unzip/*.fa .
 find -maxdepth 1|grep \.\/[0-9].|while read dir;do rm -rf $dir;done
+#Generate a .fofn file of .bam files as input for pbmm2
+ls ../../bamfiles/pb_279/*subreads.bam|while read bam;do echo $bam >> pb_279_bam.fofn;done
+# Align the .bam subread files
+nohup pbmm2 align pb_279_falcon_step3_v2.fasta pb_279_bam.fofn pb_279_v2_aligned.bam --sort -j 8 -J 8 -m 32G --preset SUBREAD & 
+# Generate an .fa index file
+nohup samtools faidx pb_279_falcon_step3_v2.fasta -o pb_279_falcon_step3_v2.fasta.fai &
+wait
 ```
 
 <a name="quabus"></a>
