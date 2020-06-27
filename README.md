@@ -498,12 +498,12 @@ cp -r busco_plots*/*/ ../busco_all/
 Attention: [**integrated_busco.sh**](https://github.com/Orthologues/LUfungiProject/blob/master/pb-assembly/integrated_busco.sh) is an integrated bash script which runs automatic and parallel busco analysis for all the finished falcon-assemblies under the folder "pb-assembly". The script must be run after [**integrated_falcon_quast.sh**](https://github.com/Orthologues/LUfungiProject/blob/master/pb-assembly/integrated_falcon_quast.sh) commands are properly finished, otherwise it wouldn't work.
 
 ```bash
-## Do busco analysis for the assemblies from non-falcon assemblers
 cd ~/LUfungiProject/
 conda activate busco
-#find out how many .fasta assemblies are yet to be analyzed
+# find out how many .fasta assemblies are yet to be analyzed
 find -mindepth 2 -maxdepth 2 -name "*.fasta"|wc -l
-# Run busco analysis for the reference genomes
+
+## Run busco analysis for the reference genomes
 cd ~/LUfungiProject/OriginalAssemblies/
 nohup busco -m genome -i pb_279_Leuge.fasta -o pb_279_ref_busco -l fungi_odb10 & sleep 10
 nohup busco -m genome -i pb_320-2_Mysco.fasta -o pb_320-2_ref_busco -l fungi_odb10 & sleep 10
@@ -512,8 +512,12 @@ find -maxdepth 2 -name "*busco.txt"|while read txt;do dir=$(echo $txt|cut -d / -
 find -name "*summary"|while read dir;do name=$(echo $dir|cut -d / -f 2);pardir=$(echo $dir|cut -d / -f 1-2);newname=$(echo ${pardir}/$name);mv $dir $newname;done
 cp -r */*_busco/ ../busco_all/
 
-# Run busco analysis for other non-falcon assemblies
+## Run busco analysis for other non-falcon assemblies
 cd ~/LUfungiProject/
+ls *Assembly/*.fasta|wc -l  #find out how many non-falcon and non-reference assemblies are yet to be analyzed 
+# run busco analysis for raven-assemblies
+# run busco analysis for flye-assemblies
+# run busco analysis for miniasm-assemblies
 
 
 ## Do quast analysis for the assemblies from non-falcon assemblers
