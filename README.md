@@ -467,7 +467,7 @@ What's more, an fc_unzip configuration file whose name is in the format 'fc_unzi
 
 Therefore, you should create subfolders whose names are all in the format 'pb_${parN}_v${i}' under "pb-assembly/" subfolder of the main repository in order to arrange working directories for each of the assembly.
 
-After all these preparations, it's time to run the integrated script [**assembling by falcon & quast analysis**](https://github.com/Orthologues/LUfungiProject/blob/master/pb-assembly/integrated_falcon_quast.sh) directly under your 'pb-assembly/' subfolder according to its manual. This script would run falcon-assembly, consensus polishing and subsequent QUAST analysis according to each of your configuration files in parallel.
+After all these preparations, it's time to run an integrated script [**integrated_falcon_quast.sh**](https://github.com/Orthologues/LUfungiProject/blob/master/pb-assembly/integrated_falcon_quast.sh) directly under your 'pb-assembly/' subfolder according to its manual. This script would run falcon-assembly, consensus polishing and subsequent QUAST analysis according to each of your configuration files in parallel.
 
 
 <a name="quabus"></a>
@@ -518,6 +518,7 @@ conda activate busco
 
 ## Do quast analysis for the assemblies from non-falcon assemblers
 conda activate py2
-# Integration of busco & quast reports by multiqc
+
+## Integration of busco & quast reports by multiqc
 conda activate py3.6
 ```
