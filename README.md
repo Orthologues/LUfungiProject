@@ -473,106 +473,39 @@ After all these preparations, it's time to run an integrated script [**integrate
 <a name="quabus"></a>
 ## Assembly evaluation by QUAST & BUSCO and integration by multiqc
 ```bash
-## Do busco analysis for falcon assemblies of different stages
-#Create a .txt file to record how many different versions of assemblies have got their own busco analysis done 
-touch ~/LUfungiProject/countDone.txt 
-cd ~/LUfungiProject/pb-assembly
-conda activate busco
-versions1=$(find -maxdepth 1 -name "pb_279_v*"|wc -l);
-versions2=$(find -maxdepth 1 -name "pb_320-2_v*"|wc -l);
-for ((i=1;i<=$versions1;i++))
-do
-( cd ~/LUfungiProject/pb-assembly/pb_279_v${i}
-  nohup busco -m genome -i pb_279_falcon_step2_v${i}.fasta -o step2_busco -l fungi_odb10 & sleep 10
-  nohup busco -m genome -i pb_279_falcon_step3_v${i}.fasta -o step3_busco -l fungi_odb10 & sleep 10
-  nohup busco -m genome -i pb_279_step3_v${i}_polished.fasta -o step4_busco -l fungi_odb10 & sleep 10
-  wait
-  echo "Done" >> ../../countDone.txt ) &
-done 
-for ((k=1;k<=$versions2;k++))
-do
-( cd ~/LUfungiProject/pb-assembly/pb_320-2_v${k}
-  nohup busco -m genome -i pb_320-2_falcon_step2_v${k}.fasta -o step2_busco -l fungi_odb10 & sleep 10
-  nohup busco -m genome -i pb_320-2_falcon_step3_v${k}.fasta -o step3_busco -l fungi_odb10 & sleep 10
-  nohup busco -m genome -i pb_320-2_step3_v${k}_polished.fasta -o step4_busco -l fungi_odb10 & sleep 10
-  wait
-  echo "Done" >> ../../countDone.txt ) & 
-done 
-cd ~/LUfungiProject/
-sum=$(($versions1+$versions2))
-count=$(cat countDone.txt|wc -l)
-# As long as not every version of assemblies has got its busco analysis done, the 'while' loop would reiterate and the pipeline wouldn't proceed
-while [ ! "$count" == "$sum" ]
-do 
-  sleep 10
-  count=$(cat countDone.txt|wc -l)
-done
-rm ~/LUfungiProject/countDone.txt
-# Generalize the busco-plotting pipeline
+## Do quast & busco analysis for falcon assemblies of different stages
 cd ~/LUfungiProject/pb-assembly/
-mkdir busco_plots
-cd busco_plots
-ls ../*/step*_busco/*.txt|while read txt;do name=$(echo $txt|cut -d / -f 2-3|tr -d \/|sed 's/step/_step/');echo $name;mkdir $name;cp $txt $name;done
-nohup sh -c 'ls *busco/|grep ^pb|sed 's/://'|while read dir;do nohup generate_plot.py -wd $dir;done' & wait
-rm *.log
-mv *_busco/ /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/busco_plots/
-# Run busco analysis for the reference genomes
-cd ~/LUfungiProject/OriginalAssemblies/
-nohup busco -m genome -i pb_279_Leuge.fasta -o pb_279_ref_busco -l fungi_odb10 &
-nohup busco -m genome -i pb_320-2_Mysco.fasta -o pb_320-2_ref_busco -l fungi_odb10 &
+#prerequisite commands
+nohup sh ./integrated_falcon_quast.sh -r LUfungiProject -n 279 [options] &
+nohup sh ./integrated_falcon_quast.sh -r LUfungiProject -n 320-2 [options] &
 wait
-find -maxdepth 2 -name "*busco.txt"|while read txt;do dir=$(echo $txt|cut -d / -f 1-2);mkdir ${dir}/summary;mv $txt ${dir}/summary;nohup generate_plot.py -wd ${dir}/summary/;done 
-find -name "*summary"|while read dir;do name=$(echo $dir|cut -d / -f 2);pardir=$(echo $dir|cut -d / -f 1-2);newname=$(echo ${pardir}/$name);mv $dir $newname;done
-mv */*_busco/ /home2/shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/busco_plots/
-
-## Do quast analysis for falcon assemblies of different stages
-cd ~/LUfungiProject/pb-assembly
-conda activate py2
-touch ~/LUfungiProject/countDone.txt
-versions1=$(find -maxdepth 1 -name "pb_279_v*"|wc -l);
-versions2=$(find -maxdepth 1 -name "pb_320-2_v*"|wc -l);
-for ((i=1;i<=$versions1;i++))
-do
-( cd ~/LUfungiProject/pb-assembly/pb_279_v${i}
-  nohup quast.py -o step2_v${i}_quast/  pb_279_falcon_step2_v${i}.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 &
-  nohup quast.py -o step3_v${i}_quast/  pb_279_falcon_step3_v${i}.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 &
-  nohup quast.py -o step4_v${i}_quast/  pb_279_step3_v${i}_polished.fasta -r ../../OriginalAssemblies/pb_279_Leuge.fasta -t 20 & 
-  wait
-  echo "Done" >> ../../countDone.txt ) &
-done 
-for ((k=1;k<=$versions2;k++))
-do
-( cd ~/LUfungiProject/pb-assembly/pb_320-2_v${k}
-  nohup quast.py -o step2_v${k}_quast/ pb_320-2_falcon_step2_v${k}.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
-  nohup quast.py -o step3_v${k}_quast/ pb_320-2_falcon_step3_v${k}.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 &
-  nohup quast.py -o step4_v${k}_quast/ pb_320-2_step3_v${k}_polished.fasta -r ../../OriginalAssemblies/pb_320-2_Mysco.fasta -t 20 & 
-  wait
-  echo "Done" >> ../../countDone.txt ) &
-done 
-cd ~/LUfungiProject/
-sum=$(($versions1+$versions2))
-count=$(cat countDone.txt|wc -l)
-while [ ! "$count" == "$sum" ]
-do 
-  sleep 10
-  count=$(cat countDone.txt|wc -l)
-done
-rm ~/LUfungiProject/countDone.txt
-# Send my falcon assemblies and quast reports to the shared folder
-cd ~/LUfungiProject/pb-assembly/
-find -maxdepth 3 -name "report.pdf"|while read pdf;do dir=$(echo $pdf|cut -d / -f 1-3|sed -r 's/quast/quast\//');newname=$(echo $dir|cut -d / -f 2-3|sed -r 's/v[0-9]_//'|tr / _);mv "$pdf" "$dir${newname}.pdf";done
-find -maxdepth 3 -name "*quast.pdf" #to check if pdf names are changed properly
-#copy my quast reports and .fasta assemblies to the specific subfolder of the shared folder
-find -maxdepth 3 -name "*quast.pdf"|while read pdf;do cp $pdf ../../../shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/pb-assembly/;done
-find -maxdepth 2 -name "pb*.fasta"|while read asm;do cp $asm ../../../shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/pb-assembly/;done
-
-
-## Do busco analysis for the assemblies from non-falcon assemblers
+#
 conda activate busco
+nohup sh ./integrated_busco.sh -r LUfungiProject -n 279 -k fungi_odb10 &
+nohup sh ./integrated_busco.sh -r LUfungiProject -n 320-2 -k fungi_odb10 &
+wait
+#Use multiqc to integrate the results of QUAST and BUSCO analysis of all falcon-assemblies
+conda activate py3.6
+multiqc busco_plots279/ -o multiqc_busco279 &>> mtqc.log &
+multiqc busco_plots320-2/ -o multiqc_busco320-2 &>> mtqc.log &
+multiqc pb_320-2_*/*quast/report.tsv -o multiqc_quast320-2 &>> mtqc.log &
+multiqc pb_279_*/*quast/report.tsv -o multiqc_quast279 &>> mtqc.log &
+wait
+```
+Attention: [**integrated_busco.sh**](https://github.com/Orthologues/LUfungiProject/blob/master/pb-assembly/integrated_busco.sh) is an integrated bash script which runs automatic and parallel busco analysis for all the finished falcon-assemblies under the folder "pb-assembly". The script must be run after [**integrated_falcon_quast.sh**](https://github.com/Orthologues/LUfungiProject/blob/master/pb-assembly/integrated_falcon_quast.sh) commands are properly finished, otherwise it wouldn't work.
+
+```bash
+## Do busco analysis for the assemblies from non-falcon assemblers
+cd ~/LUfungiProject/
+conda activate busco
+
 
 ## Do quast analysis for the assemblies from non-falcon assemblers
+cd ~/LUfungiProject/
 conda activate py2
 
+
 ## Integration of busco & quast reports by multiqc
+cd ~/LUfungiProject/
 conda activate py3.6
 ```
