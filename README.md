@@ -510,7 +510,7 @@ nohup busco -m genome -i pb_320-2_Mysco.fasta -o pb_320-2_ref_busco -l fungi_odb
 wait
 find -maxdepth 2 -name "*busco.txt"|while read txt;do dir=$(echo $txt|cut -d / -f 1-2);mkdir ${dir}/summary;mv $txt ${dir}/summary;nohup generate_plot.py -wd ${dir}/summary/;done 
 find -name "*summary"|while read dir;do name=$(echo $dir|cut -d / -f 2);pardir=$(echo $dir|cut -d / -f 1-2);newname=$(echo ${pardir}/$name);mv $dir $newname;done
-cp -r */*_busco/ ../busco_all/
+cp -r pb*/*_busco/ ../busco_all/
 
 ## Run busco analysis for other non-falcon assemblies
 cd ~/LUfungiProject/
@@ -518,22 +518,22 @@ ls *Assembly/*.fasta|wc -l  #find out how many non-falcon and non-reference asse
 # run busco analysis for raven-assemblies
 cd ~/LUfungiProject/ravenAssembly/
 ls *.fasta
-nohup busco -m genome -i pb_279_Leuge.fasta -o pb_279_ref_busco -l fungi_odb10 & sleep 5
-nohup busco -m genome -i pb_320-2_Mysco.fasta -o pb_320-2_ref_busco -l fungi_odb10 & sleep 5
-nohup busco -m genome -i pb_279_Leuge.fasta -o pb_279_ref_busco -l fungi_odb10 & sleep 5
-nohup busco -m genome -i pb_320-2_Mysco.fasta -o pb_320-2_ref_busco -l fungi_odb10 & sleep 5
-nohup busco -m genome -i pb_279_Leuge.fasta -o pb_279_ref_busco -l fungi_odb10 & sleep 5
-nohup busco -m genome -i pb_320-2_Mysco.fasta -o pb_320-2_ref_busco -l fungi_odb10 & sleep 5
-nohup busco -m genome -i pb_279_Leuge.fasta -o pb_279_ref_busco -l fungi_odb10 & sleep 5
-nohup busco -m genome -i pb_320-2_Mysco.fasta -o pb_320-2_ref_busco -l fungi_odb10 & sleep 5
-nohup busco -m genome -i pb_279_Leuge.fasta -o pb_279_ref_busco -l fungi_odb10 & sleep 5
-nohup busco -m genome -i pb_320-2_Mysco.fasta -o pb_320-2_ref_busco -l fungi_odb10 & sleep 5
-nohup busco -m genome -i pb_279_Leuge.fasta -o pb_279_ref_busco -l fungi_odb10 & sleep 5
-nohup busco -m genome -i pb_320-2_Mysco.fasta -o pb_320-2_ref_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_279_raven_default.fasta -o pb_279_raven_default_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_320-2_raven_default.fasta -o pb_320-2_raven_default_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_279_raven_m2n-6g-4p1.fasta -o pb_279_raven_m2n-6g-4p1_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_320-2_raven_m2n-6g-4p1.fasta -o pb_320-2_raven_m2n-6g-4p1_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_279_raven_m2n-6g-4p2.fasta -o pb_279_raven_m2n-6g-4p2_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_320-2_raven_m2n-6g-4p2.fasta -o pb_320-2_raven_m2n-6g-4p2_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_279_raven_m2n-6g-4p3.fasta -o pb_279_raven_m2n-6g-4p3_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_320-2_raven_m2n-6g-4p3.fasta -o pb_320-2_raven_m2n-6g-4p3_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_279_raven_m3n-5g-4p1.fasta -o pb_279_raven_m3n-5g-4p1_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_320-2_raven_m3n-5g-4p1.fasta -o pb_279_raven_m3n-5g-4p1_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_279_raven_m3n-5g-4p3.fasta -o pb_279_raven_m3n-5g-4p3_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_320-2_raven_m3n-5g-4p3.fasta -o pb_320-2_raven_m3n-5g-4p3_busco -l fungi_odb10 & sleep 5
 wait
 find -maxdepth 2 -name "*busco.txt"|while read txt;do dir=$(echo $txt|cut -d / -f 1-2);mkdir ${dir}/summary;mv $txt ${dir}/summary;nohup generate_plot.py -wd ${dir}/summary/;done 
 find -name "*summary"|while read dir;do name=$(echo $dir|cut -d / -f 2);pardir=$(echo $dir|cut -d / -f 1-2);newname=$(echo ${pardir}/$name);mv $dir $newname;done
-cp -r */*_busco/ ../busco_all/
+cp -r pb*/*_busco/ ../busco_all/
 
 # run busco analysis for flye-assemblies
 cd ~/LUfungiProject/flyeAssembly/
@@ -543,19 +543,19 @@ nohup busco -m genome -i pb_320-2_flye_default.fasta -o pb_320-2_flye_default_bu
 wait
 find -maxdepth 2 -name "*busco.txt"|while read txt;do dir=$(echo $txt|cut -d / -f 1-2);mkdir ${dir}/summary;mv $txt ${dir}/summary;nohup generate_plot.py -wd ${dir}/summary/;done 
 find -name "*summary"|while read dir;do name=$(echo $dir|cut -d / -f 2);pardir=$(echo $dir|cut -d / -f 1-2);newname=$(echo ${pardir}/$name);mv $dir $newname;done
-cp -r */*_busco/ ../busco_all/
+cp -r pb*/*_busco/ ../busco_all/
 
 # run busco analysis for miniasm-assemblies
 cd ~/LUfungiProject/miniasmAssembly/
 ls *.fasta
-nohup busco -m genome -i pb_279_Leuge.fasta -o pb_279_ref_busco -l fungi_odb10 & sleep 5
-nohup busco -m genome -i pb_320-2_Mysco.fasta -o pb_320-2_ref_busco -l fungi_odb10 & sleep 5
-nohup busco -m genome -i pb_279_Leuge.fasta -o pb_279_ref_busco -l fungi_odb10 & sleep 5
-nohup busco -m genome -i pb_320-2_Mysco.fasta -o pb_320-2_ref_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_279_miniasm_polished.fasta -o pb_279_miniasm_polished_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_320-2_miniasm_polished.fasta -o pb_320-2_miniasm_polished_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_279_miniasm_unpolished.fasta -o pb_279_miniasm_unpolished_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_320-2_miniasm_unpolished.fasta -o pb_320-2_miniasm_unpolished_busco -l fungi_odb10 & sleep 5
 wait
 find -maxdepth 2 -name "*busco.txt"|while read txt;do dir=$(echo $txt|cut -d / -f 1-2);mkdir ${dir}/summary;mv $txt ${dir}/summary;nohup generate_plot.py -wd ${dir}/summary/;done 
 find -name "*summary"|while read dir;do name=$(echo $dir|cut -d / -f 2);pardir=$(echo $dir|cut -d / -f 1-2);newname=$(echo ${pardir}/$name);mv $dir $newname;done
-cp -r */*_busco/ ../busco_all/
+cp -r pb*/*_busco/ ../busco_all/
 
 ## Do quast analysis for the assemblies from non-falcon assemblers
 cd ~/LUfungiProject/
