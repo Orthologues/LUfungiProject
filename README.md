@@ -558,6 +558,14 @@ do
   count=$(cat countDone.txt|wc -l)
 done
 rm ~/LUfungiProject/countDone.txt
+# Send my falcon assemblies and quast reports to the shared folder
+cd ~/LUfungiProject/pb-assembly/
+find -maxdepth 3 -name "report.pdf"|while read pdf;do dir=$(echo $pdf|cut -d / -f 1-3|sed -r 's/quast/quast\//');newname=$(echo $dir|cut -d / -f 2-3|sed -r 's/v[0-9]_//'|tr / _);mv "$pdf" "$dir${newname}.pdf";done
+find -maxdepth 3 -name "*quast.pdf" #to check if pdf names are changed properly
+#copy my quast reports and .fasta assemblies to the specific subfolder of the shared folder
+find -maxdepth 3 -name "*quast.pdf"|while read pdf;do cp $pdf ../../../shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/pb-assembly/;done
+find -maxdepth 2 -name "pb*.fasta"|while read asm;do cp $asm ../../../shared_bioinformatics_master_projects/agaricalesGenomes/jiawei_zhao_assemblies/pb-assembly/;done
+
 
 ## Do busco analysis for the assemblies from non-falcon assemblers
 conda activate busco
