@@ -452,7 +452,23 @@ nohup pbmm2 align pb_279_falcon_step3_v2.fasta pb_279_bam.fofn pb_279_v2_aligned
 # Generate an .fa index file
 nohup samtools faidx pb_279_falcon_step3_v2.fasta -o pb_279_falcon_step3_v2.fasta.fai &
 wait
+# get pb-index of the aligned .bam file
+nohup pbindex pb_279_v2_aligned.bam & wait
+# run genomicconsensus to generate the polished consensus assembly
+nohup arrow pb_279_v2_aligned.bam -r pb_279_falcon_step3_v2.fasta -o pb_279_step3_v2_polished.fastq -j 20 --diploid &
+wait
+# convert the .fastq polished consensus into .fasta format
+nohup cat pb_279_step3_v${i}_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_279_step3_v${i}_polished.fasta &  
+wait
 ```
+Alternatively, you may have finished writing all .cfg files at once. All these fc_run configuration files have to under 'pb-assembly/mycfgs/' subfolder of the main repository and use the naming format as "fc_pb_${parN}_v${i}.cfg" (for example, $parN in my project here is either 279 or 320-2 and $i denotes the version number, it may be one of the integer 1, 2 and 3 in my project here).
+
+What's more, a fc_unzip configuration file whose name is in the format "fc_unzip_pb_${parN}.cfg" has to be created under the 'pb-assembly/mycfgs/' subfolder as well.
+
+Therefore, you should create subfolders whose names are all in the format "pb_${parN}_v${i}" under 'pb-assembly' subfolder of the main repository in order to arrange working directories for each of the assembly.
+
+After all these preparations, it's time to run the integrated script [**assembling by falcon & quast analysis**](https://github.com/Orthologues/LUfungiProject/blob/master/pb-assembly/integrated_falcon_quast.sh) directly under your 'pb-assembly/' subfolder according to its manual. This script would run falcon-assembly, consensus polishing and subsequent QUAST analysis according to each of your configuration files in parallel.
+
 
 <a name="quabus"></a>
 ## Assembly evaluation by QUAST & BUSCO
