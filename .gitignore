@@ -21,3 +21,5 @@ pb-assembly/*
 test1.sh
 count*
 multiqc*/multiqc_data
+*all/
+*.log
