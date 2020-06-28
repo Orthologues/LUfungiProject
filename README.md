@@ -561,9 +561,37 @@ conda activate py2
 # Create a directory to store results of quast analysis
 mkdir quast_all
 # find out how many .fasta assemblies are yet to be analyzed by quast
-find -mindepth 2 -maxdepth 2 -name "*.fasta"|wc -l #the answer here is 20
+version=$(find -mindepth 2 -maxdepth 2 -name "*.fasta"|wc -l) 
+touch countQuast.txt
+echo $version #the answer here is 20
+# Copy the quast analysis of falcon-assemblies to "quast_all" subfolder
+ls -d pb-assembly/*/*quast/| while read quast;do newname=$(echo $quast|cut -d / -f 2-3|tr / _|sed -r 's/_v[0-9]+//');cp -r $quast quast_all/${newname};done
+# do quast analysis for each of non-falcon assemblies in parallel and output the results of analysis to "quast_all/" folder
+find -mindepth 2 -maxdepth 2 -name "*.fasta"|while read fasta
+do 
+( name=$(echo $fasta|cut -d / -f 3|cut -d . -f 1)
+  nohup quast.py -o quast_all/${name} $fasta -t 20 &
+  wait
+  echo "Done" >> countQuast.txt ) &
+done
+count=$(cat countQuast.txt|wc -l)
+while [ ! "$count" == "$version" ]
+do 
+  sleep 10
+  count=$(cat countQuast.txt|wc -l)
+done
+rm ~/LUfungiProject/countQuast.txt
+
 
 ## Integration of busco & quast reports by multiqc
 cd ~/LUfungiProject/
 conda activate py3.6
+# create multiqc summaries for busco analysis of all assemblies 
+multiqc busco_all/*279*/ -o multiqc_busco_279_all &>> mtqc.log &
+multiqc busco_all/*320-2*/ -o multiqc_busco_320-2_all &>> mtqc.log & 
+wait
+# create multiqc summaries for quast analysis of all assemblies 
+multiqc quast_all/*279*/report.tsv -o multiqc_quast_279_all &>> mtqcquast.log &
+multiqc quast_all/*320-2*/report.tsv -o multiqc_quast_320-2_all &>> mtqcquast.log & 
+wait
 ```
