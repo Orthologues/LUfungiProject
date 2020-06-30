@@ -54,7 +54,7 @@ versions=$(find -maxdepth 1 -name "pb_${parN}_v*"|wc -l);
 for ((i=1;i<=$versions;i++))
 do
 ( cd ~/${parR}pb-assembly/pb_${parN}_v${i}
-  nohup fc_run ../mycfgs/fc_pb_${parN}_v${i}.cfg &> run0.log &
+  nohup fc_run.py ../mycfgs/fc_pb_${parN}_v${i}.cfg &> run0.log &
   wait
   nohup fc_unzip.py ../mycfgs/fc_unzip_pb_${parN}.cfg &> run1.std &
   wait

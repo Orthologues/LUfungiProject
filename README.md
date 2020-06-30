@@ -26,6 +26,7 @@
 + [**Preliminary data-analysis & data-processing**](#preli)
 + [**Try different non-falcon long-read assemblers to generate genome assemblies**](#trydi)
 + [**Use pb-assembly(falcon and falcon-unzip) & genomicconsensus for assembling & polishing**](#falgen)
++ [**Assembly evaluation by QUAST & BUSCO**](#quabus)
 ***
 
 <a name="intro0"></a>
@@ -50,8 +51,12 @@ Because of the dikaryotic nature of these two fungi, a chronological combination
 
 Since I have encountered the same issue when using falcon-unzip as the unsolved issue here shows, 
 
+<a name="error"></a>
+### An unsolved error
 - [Error at 4-polish](https://github.com/PacificBiosciences/FALCON_unzip/issues/159)
 
+<a name="solution"></a>
+### The compromise solution for the unsolved error above
 I decided to concatenate the .fasta file of primary contigs and the .fasta file of haplotype contigs into a reference assembly file. Both the primary-contig file and the haplotype-contig file were output from the successful '3-unzip' step of falcon-unzip. Thus, the concatenated .fasta file would be used as a reference input for [***pbmm2***](#pbmm2) & for + [***genomicconsensus***](#gcc) in order to generate a polished consensus .fasta file. Unfortunately, it would be impossible to use falcon-phase then. As a result, the consensus .fasta file would be considered as the final assembly. In order to access more detailed descriptions of PacBio SMRT tools, an online tutorial is available at [***SMRTtools***](https://www.pacb.com/wp-content/uploads/SMRT_Tools_Reference_Guide_v700.pdf).  
 
 <a name="pbasm"></a>
@@ -289,21 +294,29 @@ In order to achieve achieve availability of my integrated pipeline scripts of [*
 ```bash
 cd ~/LUfungiProject
 
+## FASTQC 
 mkdir fastqcReports #Create a directory which stores fastqcReports of subread files
 #create a corresponding repository for each of the 4 given fungal species in "fastqcReports" directory
 ls ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/*/*subreads/*|cut -d / -f 7|while read fungi_name;do mkdir ./fastqcReports/$fungi_name;done; 
 #Do fastqc analysis for the given raw subread file in fastq.gz format of each of the 4 fungal species 
 conda activate py2
-nohup sh -c "ls fastqcReports/*|cut -d / -f 2|sed s/://g|while read name;do nohup fastqc --threads 20 -o ./fastqcReports/$name/ --extract -f fastq -c ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/$name/*reads/*.gz;done" & wait 
-
+nohup sh -c 'ls fastqcReports/*|cut -d / -f 2|sed s/://g|while read name;do nohup fastqc --threads 20 -o ./fastqcReports/$name/ --extract -f fastq -c ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/$name/*reads/*.gz;done' & wait 
 #generate a integrated multiqc report from all the preceding fastqc reports of .fastq.gz subread files
 conda activate py3.6 #multiqc must be run under this env
 nohup multiqc ./fastqcReports/ -o multiQCreport/ & wait 
 
+## SUBREAD FILES
 #Create symbolic links for the 2 subread files in .fastq.gz which would be necessary later
 ln -s ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_279/filtered_subreads/pb_279_filtered_subreads.fastq.gz .
 ln -s ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_320-2/subreads/pb_320-2_filtered_subreads.fastq.gz .  
+#Convert .fastq.gz files to .fasta files as required
+nohup less pb_279_filtered_subreads.fastq.gz|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_279_filtered_subreads.fasta &
+nohup less pb_320-2_filtered_subreads.fastq.gz|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_320-2_filtered_subreads.fasta &
+wait
+#Calculate the sequence length distribution of .fasta files
+nohup sh -c 'ls *.fasta|while read file;do nohup awk -v file="$file"  '/^[^>]/ {sum++;for(i=2000;i<=20000;i+=1000){if(length($0)>=i){qualified[(i-2000)/1000]++}}} END{print sum >> "lenstat.txt";for(i=0;i<=18;i++){printf("%d - %.2f\n",i*1000+2000,qualified[i]/sum*100) >> "lenstat.txt"}}' $file;done' & wait
 
+## REFERENCE ASSEMBLIES
 #Concatenate the primary-contig.fasta file and the associate-contig.fasta file of each of the two fungi into a reference assembly
 mkdir OriginalAssemblies
 cat /home2/shared_bioinformatics_master_projects/agaricalesGenomes/genome_assemblies/pb_279_Leuge/not_polished/*.fa >
@@ -311,6 +324,7 @@ OriginalAssemblies/pb_279_Leuge.fasta
 cat /home2/shared_bioinformatics_master_projects/agaricalesGenomes/genome_assemblies/pb_320-2_Mysco/not_polished/*.fa >
 OriginalAssemblies/pb_320-2_Mysco.fasta
 
+## BAX2BAM
 #Create symbolic links for the directories which contain .bax.h5 files which would be necessary to generate .bam files
 ln -s ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_279/rawdata/run1 pb_279_raw
 ln -s ../../shared_bioinformatics_master_projects/agaricalesGenomes/b2016040/INBOX/pb_320-2/raw/run1 pb_320-2_raw 
@@ -323,21 +337,261 @@ for i in {3..24..3};do sed -n "$(echo "$i-2"|bc),${i}p" < pb_279_baxh5.txt >> ba
 for i in {3..24..3};do sed -n "$(echo "$i-2"|bc),${i}p" < pb_320-2_baxh5.txt >> bamfiles/pb_320-2_list/pb_320-2_bax_list$(echo "$i/3"|bc).txt;done 
 #Use bax2bam to generate .bam files which would be necessary for pb-assembly(Falcon)
 conda activate py3 
-nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_279_list/pb_279_bax_list${i}.txt -o bamfiles/pb_279/${i} --subread --allowUnrecognizedChemistryTriple;done' &
-nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_320-2_list/pb_320-2_bax_list${i}.txt -o bamfiles/pb_320-2/${i} --subread --allowUnrecognizedChemistryTriple;done' &
+nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_279_list/pb_279_bax_list${i}.txt -o bamfiles/pb_279/${i} --subread;done' &
+nohup sh -c 'for i in {1..8..1};do nohup bax2bam -f bamfiles/pb_320-2_list/pb_320-2_bax_list${i}.txt -o bamfiles/pb_320-2/${i} --subread;done' &
 wait 
 ```
 
 <a name="trydi"></a>
 ## Try different non-Falcon long-read assemblers to generate genome assemblies
 ```bash
+cd ~/LUfungiProject
+
+## MINIASM
 conda activate py2
 mkdir miniasmAssembly
+#find overlaps by all-vs-all self-mappings via minimap2
+nohup minimap2 -x ava-pb -t 15 pb_279_filtered_subreads.fastq.gz pb_279_filtered_subreads.fastq.gz|gzip -1 >miniasmAssembly/pb_279_default.paf.gz &
+nohup minimap2 -x ava-pb -t 15 pb_320-2_filtered_subreads.fastq.gz pb_320-2_filtered_subreads.fastq.gz|gzip -1 >miniasmAssembly/pb_320-2_default.paf.gz &
+wait
+#Layout using Miniasm
+nohup sh -c 'ls miniasmAssembly/*|while read paf;do name=$(echo $paf|cut -d / -f 2|cut -d . -f 1|cut -d _ -f 1,2);nohup miniasm -f $name*.fastq.gz $paf > ./miniasmAssembly/${name}_miniasm_unpolished.gfa;done' & wait
+#Convert .gfa files to .fasta files
+awk '/^S/{print ">"$2"\n"$3}' miniasmAssembly/pb_279_miniasm_unpolished.gfa > miniasmAssembly/pb_279_miniasm_unpolished.fasta
+awk '/^S/{print ">"$2"\n"$3}' miniasmAssembly/pb_320-2_miniasm_unpolished.gfa > miniasmAssembly/pb_320-2_miniasm_unpolished.fasta
+#Assembly polishing by minipolish(nohup shouldn't be used here since it would redirect stdout to the .gfa file)
+conda activate py3
+minipolish -t 15 --pacbio pb_279_filtered_subreads.fastq.gz miniasmAssembly/pb_279_miniasm_unpolished.gfa > miniasmAssembly/pb_279_miniasm_polished.gfa &
+minipolish -t 15 --pacbio pb_320-2_filtered_subreads.fastq.gz miniasmAssembly/pb_320-2_miniasm_unpolished.gfa > miniasmAssembly/pb_320-2_miniasm_polished.gfa &
+wait
+# Convert .gfa to .fasta
+awk '/^S/{print ">"$2"\n"$3}' miniasmAssembly/pb_279_miniasm_polished.gfa > miniasmAssembly/pb_279_miniasm_polished.fasta
+awk '/^S/{print ">"$2"\n"$3}' miniasmAssembly/pb_320-2_miniasm_polished.gfa > miniasmAssembly/pb_320-2_miniasm_polished.fasta
+
+## RAVEN
+mkdir ravenAssembly
+conda activate py3
+#Genome assembling and polishing by raven with default setting
+nohup sh -c 'ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1|cut -d _ -f 1-2);nohup raven --graphical-fragment-assembly ravenAssembly/${name}_raven_default.gfa  -t 20 $fastq;done' & wait 
+#change the alignment parameters
+#match score=2, mismatch penalty=-6, gap penalty=-4, polishing iterations=2
+nohup sh -c 'ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1|cut -d _ -f 1-2);nohup raven -m 2 -n -6 -g -4  --graphical-fragment-assembly ravenAssembly/${name}_raven_m2n-6g-4p2.gfa  -t 20 $fastq;done' & wait 
+#match score=3, mismatch penalty=-5, gap penalty=-4, polishing iterations=3
+nohup sh -c 'ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1|cut -d _ -f 1-2);nohup raven -p 3 -m 3 -n -5 -g -4 --graphical-fragment-assembly ravenAssembly/${name}_raven_m3n-5g-4p3.gfa -t 20 $fastq;done' & wait 
+#match score=2, mismatch penalty=-6, gap penalty=-4, polishing iterations=3
+nohup sh -c 'ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1|cut -d _ -f 1-2);nohup raven -p 3 -m 2 -n -6 -g -4 --graphical-fragment-assembly ravenAssembly/${name}_raven_m2n-6g-4p3.gfa -t 20 $fastq;done' & wait 
+#match score=2, mismatch penalty=-6, gap penalty=-4, polishing iterations=1
+nohup sh -c 'ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1|cut -d _ -f 1-2);nohup raven -p 1 -m 2 -n -6 -g -4 --graphical-fragment-assembly ravenAssembly/${name}_raven_m2n-6g-4p1.gfa -t 20 $fastq;done' & wait 
+#match score=3, mismatch penalty=-5, gap penalty=-4, polishing iterations=1
+nohup sh -c 'ls *.fastq.gz|while read fastq;do name=$(echo $fastq|cut -d . -f 1|cut -d _ -f 1-2);nohup raven -p 1 -m 3 -n -5 -g -4 --graphical-fragment-assembly ravenAssembly/${name}_raven_m3n-5g-4p1.gfa -t 20 $fastq;done' & wait 
+#convert all .gfa files into .fasta files
+ls ravenAssembly/*.gfa|while read gfa;do name=$(echo $gfa|cut -d . -f 1);awk '/^S/{print ">"$2"\n"$3}' $gfa > ${name}.fasta;done
+
+## FLYE
+mkdir flyeAssembly
+#'genome-size' here are set according to the sizes of corresponding reference assemblies 
+nohup flye --pacbio-raw pb_279_filtered_subreads.fastq.gz --genome-size 74m --out-dir flyeAssembly/pb_279_default/ --threads 15 &
+nohup flye --pacbio-raw pb_320-2_filtered_subreads.fastq.gz --genome-size 137m --out-dir flyeAssembly/pb_320-2_default/ --threads 15 &
+wait
+#rename and move flye assemblies
+mv flyeAssembly/pb_279_default/assembly.fasta flyeAssembly/pb_279_flye_default.fasta
+mv flyeAssembly/pb_279_default/assembly.gfa flyeAssembly/pb_279_flye_default.gfa
+mv flyeAssembly/pb_320-2_default/assembly.fasta flyeAssembly/pb_320-2_flye_default.fasta
+mv flyeAssembly/pb_320-2_default/assembly.gfa flyeAssembly/pb_320-2_flye_default.gfa
+
+## CANU
+#'genome-size' here are set according to the sizes of corresponding reference assemblies 
+nohup canu -p pb_279 -d canuAssembly/pb_279_default/ genomeSize=74m errorRate=0.3 gnuplotTested=true -pacbio-raw pb_279_filtered_subreads.fastq.gz 
+nohup canu -p pb_320-2 -d canuAssembly/pb_320-2_default/ genomeSize=137m errorRate=0.3 gnuplotTested=true -pacbio-raw pb_320-2_filtered_subreads.fastq.gz 
+#Unfortunately, CANU had taken too much time and memories so I decided to abort it
+pkill canu
+rm -rf canuAssembly
 ```
 
 <a name="falgen"></a>
 ## Use pb-assembly(falcon and falcon-unzip) & genomicconsensus for assembling & polishing
 ```bash
+cd ~/LUfungiProject
 conda activate py2
 mkdir pb-assembly
+#Create a repository which stores configuration files of falcon-assembler(fc_run.py) and falcon-unzip(fc_unzip.py) & falcon-phase(fc_phase.py)
+mkdir pb-assembly/mycfgs/
+#Create .fofn files which contain paths of .fasta and .bam files for falcon & falcon-unzip
+cd pb-assembly
+ls ../bamfiles/pb_279/*subreads.bam|while read bam;do echo $bam >> pb_279_bam.fofn;done
+ls ../bamfiles/pb_320-2/*subreads.bam|while read bam;do echo $bam >> pb_320-2_bam.fofn;done
+echo "../pb_279_filtered_subreads.fasta" >> pb_279_fa.fofn 
+echo "../pb_320-2_filtered_subreads.fasta" >> pb_320-2_fa.fofn 
+```
+Paths of the .fofn files which were created above would be filled into my configuration files as one of their compulsory parameters. My configuration files can be viewed [***here***](https://github.com/Orthologues/LUfungiProject/tree/master/pb-assembly/mycfgs). 'v1' means version1, 'v2' means version2, etc.
+```bash
+#Create a corresponding working directoriy for each of the fc_pb* configuration files.
+for i in {1..2};do mkdir pb_279_v${i}/;done
+for i in {1..3};do mkdir pb_320-2_v${i}/;done
+```
+There are multiple working directories and the pipeline of assembly from each .cfg file is relatively complicated. Therefore, I would like to use only one of my working directories - 'pb_279_v2' as an example to show the pipeline of assembly
+```bash
+cd pb_279_v2
+#run falcon-assembly
+nohup fc_run.py  ../mycfgs/fc_pb_279_v2.cfg &> run0.log & wait 
+#run falcon-unzip
+nohup fc_unzip.py ../mycfgs/fc_unzip_pb_279.cfg &> run1.std &
+```
+However, since fc_unzip would exit with an error which is stated [***here***](#error), I have to follow the compromise solution [***here***](#solution). The following bash commands describe how this compromise solution would be reached:
+```bash
+cat 2-asm-falcon/p_ctg.fa 2-asm-falcon/a_ctg.fa > pb_279_falcon_step2_v2.fasta
+cat 3-unzip/all_p_ctg.fa 3-unzip/all_h_ctg.fa > pb_279_falcon_step3_v2.fasta
+# In order to save disk space, extract only .fa files out and delete the intermediate folders
+mv 2-asm-falcon/*.fa .
+mv 3-unzip/*.fa .
+find -maxdepth 1|grep \.\/[0-9].|while read dir;do rm -rf $dir;done
+#Generate a .fofn file of .bam files as input for pbmm2
+ls ../../bamfiles/pb_279/*subreads.bam|while read bam;do echo $bam >> pb_279_bam.fofn;done
+# Align the .bam subread files
+nohup pbmm2 align pb_279_falcon_step3_v2.fasta pb_279_bam.fofn pb_279_v2_aligned.bam --sort -j 8 -J 8 -m 32G --preset SUBREAD & 
+# Generate an .fa index file
+nohup samtools faidx pb_279_falcon_step3_v2.fasta -o pb_279_falcon_step3_v2.fasta.fai &
+wait
+# get pb-index of the aligned .bam file
+nohup pbindex pb_279_v2_aligned.bam & wait
+# run genomicconsensus to generate the polished consensus assembly
+nohup arrow pb_279_v2_aligned.bam -r pb_279_falcon_step3_v2.fasta -o pb_279_step3_v2_polished.fastq -j 20 --diploid &
+wait
+# convert the .fastq polished consensus into .fasta format
+nohup cat pb_279_step3_v2_polished.fastq|paste - - - -|sed 's/^@/>/'|awk '{print $1"\n"$2}' > pb_279_step3_v2_polished.fasta &  
+wait
+```
+Alternatively, you may have finished writing all .cfg files at once. All these fc_run configuration files have to under "pb-assembly/mycfgs/" subfolder of the main repository and use the naming format as 'fc_pb_${parN}_v${i}.cfg' (for example, $parN in my project here is either 279 or 320-2; $i denotes the version number, it may be one of the integer 1, 2 or 3 in my project here).
+
+What's more, an fc_unzip configuration file whose name is in the format 'fc_unzip_pb_${parN}.cfg' has to be created under the 'pb-assembly/mycfgs/' subfolder as well.
+
+Therefore, you should create subfolders whose names are all in the format 'pb_${parN}_v${i}' under "pb-assembly/" subfolder of the main repository in order to arrange working directories for each of the assembly.
+
+After all these preparations, it's time to run an integrated script [**integrated_falcon_quast.sh**](https://github.com/Orthologues/LUfungiProject/blob/master/pb-assembly/integrated_falcon_quast.sh) directly under your 'pb-assembly/' subfolder according to its manual. This script would run falcon-assembly, consensus polishing and subsequent QUAST analysis according to each of your configuration files in parallel.
+
+
+<a name="quabus"></a>
+## Assembly evaluation by QUAST & BUSCO and integration by multiqc
+```bash
+## Do quast & busco analysis for falcon assemblies of different stages
+cd ~/LUfungiProject/pb-assembly/
+#prerequisite commands
+nohup sh ./integrated_falcon_quast.sh -r LUfungiProject -n 279 [options] &
+nohup sh ./integrated_falcon_quast.sh -r LUfungiProject -n 320-2 [options] &
+wait
+#
+conda activate busco
+nohup sh ./integrated_busco.sh -r LUfungiProject -n 279 -k fungi_odb10 &
+nohup sh ./integrated_busco.sh -r LUfungiProject -n 320-2 -k fungi_odb10 &
+wait
+#Use multiqc to integrate the results of QUAST and BUSCO analysis of all falcon-assemblies
+conda activate py3.6
+multiqc busco_plots279/ -o multiqc_busco279 &>> mtqc.log &
+multiqc busco_plots320-2/ -o multiqc_busco320-2 &>> mtqc.log &
+multiqc pb_320-2_*/*quast/report.tsv -o multiqc_quast320-2 &>> mtqc.log &
+multiqc pb_279_*/*quast/report.tsv -o multiqc_quast279 &>> mtqc.log &
+wait
+# Create a directory under the main repository to store all complete busco analysis folders
+mkdir ../busco_all
+cp -r busco_plots*/*/ ../busco_all/
+```
+Attention: [**integrated_busco.sh**](https://github.com/Orthologues/LUfungiProject/blob/master/pb-assembly/integrated_busco.sh) is an integrated bash script which runs automatic and parallel busco analysis for all the finished falcon-assemblies under the folder "pb-assembly". The script must be run after [**integrated_falcon_quast.sh**](https://github.com/Orthologues/LUfungiProject/blob/master/pb-assembly/integrated_falcon_quast.sh) commands are properly finished, otherwise it wouldn't work.
+
+```bash
+cd ~/LUfungiProject/
+conda activate busco
+
+## Run busco analysis for the reference genomes
+cd ~/LUfungiProject/OriginalAssemblies/
+nohup busco -m genome -i pb_279_Leuge.fasta -o pb_279_ref_busco -l fungi_odb10 & sleep 10
+nohup busco -m genome -i pb_320-2_Mysco.fasta -o pb_320-2_ref_busco -l fungi_odb10 & sleep 10
+wait
+find -maxdepth 2 -name "*busco.txt"|while read txt;do dir=$(echo $txt|cut -d / -f 1-2);mkdir ${dir}/summary;mv $txt ${dir}/summary;nohup generate_plot.py -wd ${dir}/summary/;done 
+find -name "*summary"|while read dir;do name=$(echo $dir|cut -d / -f 2);pardir=$(echo $dir|cut -d / -f 1-2);newname=$(echo ${pardir}/$name);mv $dir $newname;done
+cp -r pb*/*_busco/ ../busco_all/
+
+## Run busco analysis for other non-falcon assemblies
+cd ~/LUfungiProject/
+ls *Assembly/*.fasta|wc -l  #find out how many non-falcon and non-reference assemblies are yet to be analyzed 
+# run busco analysis for raven-assemblies
+cd ~/LUfungiProject/ravenAssembly/
+ls *.fasta
+nohup busco -m genome -i pb_279_raven_default.fasta -o pb_279_raven_default_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_320-2_raven_default.fasta -o pb_320-2_raven_default_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_279_raven_m2n-6g-4p1.fasta -o pb_279_raven_m2n-6g-4p1_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_320-2_raven_m2n-6g-4p1.fasta -o pb_320-2_raven_m2n-6g-4p1_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_279_raven_m2n-6g-4p2.fasta -o pb_279_raven_m2n-6g-4p2_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_320-2_raven_m2n-6g-4p2.fasta -o pb_320-2_raven_m2n-6g-4p2_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_279_raven_m2n-6g-4p3.fasta -o pb_279_raven_m2n-6g-4p3_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_320-2_raven_m2n-6g-4p3.fasta -o pb_320-2_raven_m2n-6g-4p3_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_279_raven_m3n-5g-4p1.fasta -o pb_279_raven_m3n-5g-4p1_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_320-2_raven_m3n-5g-4p1.fasta -o pb_279_raven_m3n-5g-4p1_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_279_raven_m3n-5g-4p3.fasta -o pb_279_raven_m3n-5g-4p3_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_320-2_raven_m3n-5g-4p3.fasta -o pb_320-2_raven_m3n-5g-4p3_busco -l fungi_odb10 & sleep 5
+wait
+find -maxdepth 2 -name "*busco.txt"|while read txt;do dir=$(echo $txt|cut -d / -f 1-2);mkdir ${dir}/summary;mv $txt ${dir}/summary;nohup generate_plot.py -wd ${dir}/summary/;done 
+find -name "*summary"|while read dir;do name=$(echo $dir|cut -d / -f 2);pardir=$(echo $dir|cut -d / -f 1-2);newname=$(echo ${pardir}/$name);mv $dir $newname;done
+cp -r pb*/*_busco/ ../busco_all/
+
+# run busco analysis for flye-assemblies
+cd ~/LUfungiProject/flyeAssembly/
+ls *.fasta
+nohup busco -m genome -i pb_279_flye_default.fasta -o pb_279_flye_default_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_320-2_flye_default.fasta -o pb_320-2_flye_default_busco -l fungi_odb10 & sleep 5
+wait
+find -maxdepth 2 -name "*busco.txt"|while read txt;do dir=$(echo $txt|cut -d / -f 1-2);mkdir ${dir}/summary;mv $txt ${dir}/summary;nohup generate_plot.py -wd ${dir}/summary/;done 
+find -name "*summary"|while read dir;do name=$(echo $dir|cut -d / -f 2);pardir=$(echo $dir|cut -d / -f 1-2);newname=$(echo ${pardir}/$name);mv $dir $newname;done
+cp -r pb*/*_busco/ ../busco_all/
+
+# run busco analysis for miniasm-assemblies
+cd ~/LUfungiProject/miniasmAssembly/
+ls *.fasta
+nohup busco -m genome -i pb_279_miniasm_polished.fasta -o pb_279_miniasm_polished_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_320-2_miniasm_polished.fasta -o pb_320-2_miniasm_polished_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_279_miniasm_unpolished.fasta -o pb_279_miniasm_unpolished_busco -l fungi_odb10 & sleep 5
+nohup busco -m genome -i pb_320-2_miniasm_unpolished.fasta -o pb_320-2_miniasm_unpolished_busco -l fungi_odb10 & sleep 5
+wait
+find -maxdepth 2 -name "*busco.txt"|while read txt;do dir=$(echo $txt|cut -d / -f 1-2);mkdir ${dir}/summary;mv $txt ${dir}/summary;nohup generate_plot.py -wd ${dir}/summary/;done 
+find -name "*summary"|while read dir;do name=$(echo $dir|cut -d / -f 2);pardir=$(echo $dir|cut -d / -f 1-2);newname=$(echo ${pardir}/$name);mv $dir $newname;done
+cp -r pb*/*_busco/ ../busco_all/
+
+## Do quast analysis for the assemblies from non-falcon assemblers
+cd ~/LUfungiProject/
+conda activate py2
+# Create a directory to store results of quast analysis
+mkdir quast_all
+# find out how many .fasta assemblies are yet to be analyzed by quast
+version=$(find -mindepth 2 -maxdepth 2 -name "*.fasta"|wc -l) 
+touch countQuast.txt
+echo $version #the answer here is 20
+# Copy the quast analysis of falcon-assemblies to "quast_all" subfolder
+ls -d pb-assembly/*/*quast/| while read quast;do newname=$(echo $quast|cut -d / -f 2-3|tr / _|sed -r 's/_v[0-9]+//');cp -r $quast quast_all/${newname};done
+# do quast analysis for each of non-falcon assemblies in parallel and output the results of analysis to "quast_all/" folder
+find -mindepth 2 -maxdepth 2 -name "*.fasta"|while read fasta
+do 
+( name=$(echo $fasta|cut -d / -f 3|cut -d . -f 1)
+  nohup quast.py -o quast_all/${name} $fasta -t 20 &
+  wait
+  echo "Done" >> countQuast.txt ) &
+done
+count=$(cat countQuast.txt|wc -l)
+while [ ! "$count" == "$version" ]
+do 
+  sleep 10
+  count=$(cat countQuast.txt|wc -l)
+done
+rm ~/LUfungiProject/countQuast.txt
+
+
+## Integration of busco & quast reports by multiqc
+cd ~/LUfungiProject/
+conda activate py3.6
+# create multiqc summaries for busco analysis of all assemblies 
+multiqc busco_all/*279*/ -o multiqc_busco_279_all &>> mtqc.log &
+multiqc busco_all/*320-2*/ -o multiqc_busco_320-2_all &>> mtqc.log & 
+wait
+# create multiqc summaries for quast analysis of all assemblies 
+multiqc quast_all/*279*/report.tsv -o multiqc_quast_279_all &>> mtqcquast.log &
+multiqc quast_all/*320-2*/report.tsv -o multiqc_quast_320-2_all &>> mtqcquast.log & 
+wait
 ```
