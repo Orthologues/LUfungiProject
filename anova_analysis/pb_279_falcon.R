@@ -23,9 +23,25 @@ fit.complete<-lm(falcon$complete~falcon$step+falcon$cfg_version)
 #Independent measurements
 dwtest(fit.Missing)
 dwtest(fit.complete)
-#Assumption is fulfilled
+par(mfrow=c(2,2))
+plot(fit.Missing)
+plot(fit.complete)
+par(mfrow=c(1,1))
+shapiro.test(fit.Missing$residuals)
+shapiro.test(fit.complete$residuals)
+x <- fit.Missing$residuals
+y <- pnorm(summary(x), mean = mean(x, na.rm=TRUE), sd = sd(x, na.rm=TRUE))
+ks.test(x, y)
+leveneTest(fit.Missing)
+x <- fit.complete$residuals
+y <- pnorm(summary(x), mean = mean(x, na.rm=TRUE), sd = sd(x, na.rm=TRUE))
+ks.test(x, y)
+leveneTest(fit.complete)
+#Despite leveneTest doesn't work here, other assumptions are all fulfilled
 
 #check the assessment results
 anova(fit.Missing)
+summary(fit.Missing)
 anova(fit.complete)
+summary(fit.complete)
 # $step is significant, whereas $cfg_version is insignicant 
