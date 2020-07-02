@@ -1,4 +1,4 @@
-#this R script analyzes how different stages of falcon-assembly & polishing and different versions of configuration files affect results of BUSCO assessment for genome-assemblies of pb_279(Leuge)
+#this R script analyzes how different stages of falcon-assembly & polishing and different versions of configuration files affect results of BUSCO assessment for genome-assemblies of pb_320-2(Mysco)
 
 library(car)
 library(ggplot2)
@@ -7,7 +7,7 @@ library(lmerTest)
 library(lmtest)
 
 setwd('~/LUfungiProject/anova_analysis/')
-falcon=read.csv("pb_279_falcon.csv")
+falcon=read.csv("pb_320-2_falcon.csv")
 str(falcon) #check 
 falcon$step<-factor(falcon$step)
 falcon$cfg_version<-factor(falcon$cfg_version)
